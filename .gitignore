@@ -1,0 +1,6 @@
+__pycache__
+*.db
+examples
+.project
+.pydevproject
+.settings
