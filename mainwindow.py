@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainwindow.ui'
+# Form implementation generated from reading ui file 'Qt/mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -40,23 +40,15 @@ class Ui_MainWindow(object):
         self.gridLayout = QtWidgets.QGridLayout(self.tabEncoder)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.gridLayout.addItem(spacerItem, 1, 0, 1, 1)
         self.searchEncoder = QtWidgets.QLineEdit(self.tabEncoder)
         self.searchEncoder.setClearButtonEnabled(True)
         self.searchEncoder.setObjectName("searchEncoder")
         self.gridLayout.addWidget(self.searchEncoder, 1, 1, 1, 1)
-        self.tableEncoder = QtWidgets.QTableView(self.tabEncoder)
-        self.tableEncoder.setEnabled(True)
-        self.tableEncoder.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.tableEncoder.setAlternatingRowColors(True)
-        self.tableEncoder.setShowGrid(False)
-        self.tableEncoder.setGridStyle(QtCore.Qt.NoPen)
-        self.tableEncoder.setSortingEnabled(True)
-        self.tableEncoder.setObjectName("tableEncoder")
-        self.tableEncoder.horizontalHeader().setStretchLastSection(True)
-        self.tableEncoder.verticalHeader().setVisible(False)
-        self.gridLayout.addWidget(self.tableEncoder, 0, 0, 1, 2)
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout.addItem(spacerItem, 1, 0, 1, 1)
+        self.listEncoder = QtWidgets.QListWidget(self.tabEncoder)
+        self.listEncoder.setObjectName("listEncoder")
+        self.gridLayout.addWidget(self.listEncoder, 0, 0, 1, 2)
         self.tabWidget.addTab(self.tabEncoder, "")
         self.tabActuator = QtWidgets.QWidget()
         self.tabActuator.setObjectName("tabActuator")
@@ -142,18 +134,20 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setEnabled(True)
+        self.statusbar.setToolTipDuration(-7)
         self.statusbar.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "IdeasX Workstation Client"))
         self.searchEncoder.setPlaceholderText(_translate("MainWindow", "Search for Encoder by Username or Device ID"))
+        self.listEncoder.setSortingEnabled(False)
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabEncoder), _translate("MainWindow", "Encoders"))
         self.searchActuator.setPlaceholderText(_translate("MainWindow", "Search for Actuator by Name or Device ID"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabActuator), _translate("MainWindow", "Actuators"))
