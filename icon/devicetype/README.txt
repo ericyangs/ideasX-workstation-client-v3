@@ -1,0 +1,1 @@
+Icons are currently 55 X 82 pixs

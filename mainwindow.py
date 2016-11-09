@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Qt/mainwindow.ui'
+# Form implementation generated from reading ui file 'mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.7
 #
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(415, 459)
+        MainWindow.resize(480, 556)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -22,6 +22,11 @@ class Ui_MainWindow(object):
         MainWindow.setDockOptions(QtWidgets.QMainWindow.AllowNestedDocks|QtWidgets.QMainWindow.AllowTabbedDocks|QtWidgets.QMainWindow.AnimatedDocks|QtWidgets.QMainWindow.VerticalTabs)
         MainWindow.setUnifiedTitleAndToolBarOnMac(False)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
+        self.centralwidget.setSizePolicy(sizePolicy)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -47,6 +52,11 @@ class Ui_MainWindow(object):
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem, 1, 0, 1, 1)
         self.listEncoder = QtWidgets.QListWidget(self.tabEncoder)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.listEncoder.sizePolicy().hasHeightForWidth())
+        self.listEncoder.setSizePolicy(sizePolicy)
         self.listEncoder.setObjectName("listEncoder")
         self.gridLayout.addWidget(self.listEncoder, 0, 0, 1, 2)
         self.tabWidget.addTab(self.tabEncoder, "")
@@ -146,10 +156,10 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "IdeasX Workstation Client"))
-        self.searchEncoder.setPlaceholderText(_translate("MainWindow", "Search for Encoder by Username or Device ID"))
+        self.searchEncoder.setPlaceholderText(_translate("MainWindow", "Search for Encoder"))
         self.listEncoder.setSortingEnabled(False)
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabEncoder), _translate("MainWindow", "Encoders"))
-        self.searchActuator.setPlaceholderText(_translate("MainWindow", "Search for Actuator by Name or Device ID"))
+        self.searchActuator.setPlaceholderText(_translate("MainWindow", "Search for Actuator"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabActuator), _translate("MainWindow", "Actuators"))
         self.labelPassword.setText(_translate("MainWindow", "Password:"))
         self.labelNetworkBroker.setText(_translate("MainWindow", "Network Broker:"))
@@ -164,14 +174,4 @@ class Ui_MainWindow(object):
         self.buttonTrainDevice.setText(_translate("MainWindow", "Train IdeasX Device"))
         self.buttonSettings.setText(_translate("MainWindow", "Apply Settings"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSetting), _translate("MainWindow", "Settings"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
 
