@@ -140,6 +140,7 @@ class IdeasXDatabaseManager():
     def clearDatabase(self):
         self.printError("Failed to delete database")
         
+        
 if __name__ == '__main__':
     dbm = IdeasXDatabaseManager()
     msg = IdeasXMessages.HealthMessage()
