@@ -60,7 +60,7 @@
        <enum>QTabWidget::West</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -97,7 +97,7 @@
         <property name="bottomMargin">
          <number>9</number>
         </property>
-        <item row="1" column="1">
+        <item row="1" column="2">
          <widget class="QLineEdit" name="searchEncoder">
           <property name="placeholderText">
            <string>Search for Encoders...</string>
@@ -107,7 +107,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="1" column="1">
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -120,20 +120,27 @@
           </property>
          </spacer>
         </item>
-        <item row="0" column="0" colspan="2">
-         <widget class="QListWidget" name="listEncoder">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="sortingEnabled">
+        <item row="0" column="0" colspan="3">
+         <widget class="QScrollArea" name="scrollEncoder">
+          <property name="autoFillBackground">
            <bool>false</bool>
           </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="contentEncoder">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>459</width>
+             <height>556</height>
+            </rect>
+           </property>
+          </widget>
          </widget>
         </item>
        </layout>
@@ -155,6 +162,19 @@
         <property name="bottomMargin">
          <number>9</number>
         </property>
+        <item row="1" column="0">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item row="1" column="1">
          <widget class="QLineEdit" name="searchActuator">
           <property name="autoFillBackground">
@@ -170,19 +190,6 @@
            <bool>true</bool>
           </property>
          </widget>
-        </item>
-        <item row="1" column="0">
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
         <item row="0" column="0" colspan="2">
          <widget class="QTableView" name="tableActuator">
@@ -215,7 +222,7 @@
        <attribute name="title">
         <string>Settings</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_4">
+       <layout class="QFormLayout" name="formLayout">
         <property name="leftMargin">
          <number>9</number>
         </property>
@@ -228,62 +235,21 @@
         <property name="bottomMargin">
          <number>9</number>
         </property>
-        <item row="9" column="0">
-         <widget class="QLabel" name="labelPassword">
-          <property name="text">
-           <string>Password:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="1" colspan="2">
-         <widget class="QLineEdit" name="wifiPassword"/>
-        </item>
-        <item row="1" column="0">
+        <item row="0" column="0">
          <widget class="QLabel" name="labelNetworkBroker">
           <property name="text">
            <string>Network Broker:</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1" colspan="2">
-         <widget class="QLineEdit" name="localBroker">
-          <property name="placeholderText">
-           <string>URL or IP</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1" colspan="2">
+        <item row="0" column="1">
          <widget class="QLineEdit" name="networkBroker">
           <property name="placeholderText">
            <string>URL or IP</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="labelSSID">
-          <property name="text">
-           <string>SSID:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1" colspan="2">
-         <widget class="QLineEdit" name="localPort">
-          <property name="placeholderText">
-           <string>Port</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="1" colspan="2">
-         <widget class="QLineEdit" name="wifiSSID"/>
-        </item>
-        <item row="7" column="0">
-         <widget class="QLabel" name="labelAPSelector">
-          <property name="text">
-           <string>Wi-Fi Access Point:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1" colspan="2">
+        <item row="2" column="1">
          <widget class="QLineEdit" name="networkPort">
           <property name="text">
            <string/>
@@ -293,7 +259,55 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="4" column="0">
+         <widget class="QLabel" name="labelLocalBroker">
+          <property name="text">
+           <string>Local Broker:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="localBroker">
+          <property name="placeholderText">
+           <string>URL or IP</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLineEdit" name="localPort">
+          <property name="placeholderText">
+           <string>Port</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QPushButton" name="buttonSettings">
+          <property name="text">
+           <string>Apply Settings</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="10" column="0">
+         <widget class="QLabel" name="labelAPSelector">
+          <property name="text">
+           <string>Wi-Fi Access Point:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="1">
          <widget class="QSpinBox" name="selectAP">
           <property name="suffix">
            <string/>
@@ -309,50 +323,30 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0" colspan="2">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="labelLocalBroker">
+        <item row="11" column="0">
+         <widget class="QLabel" name="labelSSID">
           <property name="text">
-           <string>Local Broker:</string>
+           <string>SSID:</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="2">
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
+        <item row="11" column="1">
+         <widget class="QLineEdit" name="wifiSSID"/>
         </item>
-        <item row="10" column="2">
+        <item row="13" column="0">
+         <widget class="QLabel" name="labelPassword">
+          <property name="text">
+           <string>Password:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="1">
+         <widget class="QLineEdit" name="wifiPassword"/>
+        </item>
+        <item row="15" column="1">
          <widget class="QPushButton" name="buttonTrainDevice">
           <property name="text">
            <string>Train IdeasX Device</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="2">
-         <widget class="QPushButton" name="buttonSettings">
-          <property name="text">
-           <string>Apply Settings</string>
           </property>
          </widget>
         </item>

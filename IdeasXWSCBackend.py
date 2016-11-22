@@ -22,7 +22,7 @@ This class requires the following functionality:
 import sys
 import time
 import collections
-from ParsingToolsClass import ParsingTools
+from ParsingTools import ParsingTools
 
 try:
     import paho.mqtt.client as mqtt
@@ -44,9 +44,18 @@ try:
 except ImportError: 
     print("The python classes for IdeasX are missing. Try running the Makefile in" +
             "ideasX-messages.")
+
+from PyQt5.QtCore import QObject, pyqtSignal
     
-class WorkstationClientClass(): 
+    
+class IdeasXWSCNetworkThread(QObject): 
+    
+    # define Qt signals (I don't understand why this is here) 
+    encoderUpdate = pyqtSignal([dict], name='encoderUpdate')
+    
+    
     def __init__(self, settingFile=None, clientID = None, debug=True, mqttdebug=True):
+        super(IdeasXWSCNetworkThread, self).__init__()
         # Private Class Flags and Variables
         self.__clientID = clientID
         self.__settingFile = settingFile
@@ -71,7 +80,7 @@ class WorkstationClientClass():
         self._dataParser = IdeasXMessages.DataMessage()
         self._commandParser = IdeasXMessages.CommandMessage()
         self._parserTools = ParsingTools()
-
+        
         # MQTT Client Object
         self._mqttc = mqtt.Client(self.__clientID, clean_session=True, userdata=None, protocol='MQTTv311')
         
@@ -136,15 +145,13 @@ class WorkstationClientClass():
                     temp_list.append((field[0].name, field[1]))  
                 temp_list.append(('time', time.time()))          
                 self.encoders[macID] = collections.OrderedDict(temp_list)
+                self.encoderUpdate.emit(self.getDevices())
             else:
                 try: 
                     self.encoders.pop(macID)
+                    self.encoderUpdate.emit()
                 except KeyError: 
                     self.printError("Encoder ID " +macID+" is not stored")
-            
-            if self.__refreshCb: 
-                print("FUUUUUUUUUUUUUUUUUCK")
-                self.__refreshCb()
             
             if self.__debug:
                 for encoder, fields in zip(self.encoders.keys(), self.encoders.values()): 
@@ -155,7 +162,11 @@ class WorkstationClientClass():
             if self.__debug:
                 print("Raw Message: %s" %msg.payload)
             self.printLine()
-        
+            try: 
+                self.encoders.pop(msg.topic.split('/')[2])
+                self.encoderUpdate.emit(self.getDevices())
+            except: 
+                print("This is a fucking joke anyway")
 
 
         
@@ -212,6 +223,8 @@ class WorkstationClientClass():
     def attachRefreshCallback(self, cb):
         self.__refreshCb = cb
         
+    def getDevices(self):
+        return self.encoders
             
     def activateEncoder(self, deviceMACAddress, deviceType=None):
         '''
@@ -275,11 +288,17 @@ class WorkstationClientClass():
     def printInfo(self, msgStr):
         print("WSC: " + msgStr)
         
+class IdeasXDeviceTypes():
+    def __init__(self): 
+        self.encoder = 'encoder'
+        self.actuator = 'actuator'
+                
+        
 
 if __name__ == "__main__": 
     Host = "ideasx.duckdns.org"
-    Host = "192.168.0.101"
-    Host = "10.42.0.1"
+#    Host = "192.168.0.101"
+#    Host = "10.42.0.1"
     Port = 1883 
     KeepAlive = 30
     msgFlag = False;     
@@ -290,7 +309,7 @@ if __name__ == "__main__":
     
     
     wsc = WorkstationClientClass()
-    
+        
     if cmdTest: 
         wsc.cmdStartWorkstationClient(Host, Port, KeepAlive)
     else: 

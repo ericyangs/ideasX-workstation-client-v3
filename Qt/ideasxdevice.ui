@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>506</width>
+    <width>452</width>
     <height>84</height>
    </rect>
   </property>
@@ -38,10 +38,25 @@
    <bool>false</bool>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>9</number>
+   </property>
+   <property name="topMargin">
+    <number>3</number>
+   </property>
+   <property name="rightMargin">
+    <number>9</number>
+   </property>
+   <property name="bottomMargin">
+    <number>3</number>
+   </property>
    <item>
     <widget class="QWidget" name="widgetInfo" native="true">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -49,91 +64,185 @@
      <property name="minimumSize">
       <size>
        <width>290</width>
-       <height>66</height>
+       <height>70</height>
       </size>
      </property>
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="labelDeviceType">
       <property name="geometry">
        <rect>
-        <x>4</x>
-        <y>5</y>
-        <width>90</width>
-        <height>60</height>
+        <x>5</x>
+        <y>0</y>
+        <width>101</width>
+        <height>76</height>
        </rect>
       </property>
-      <property name="text">
+      <property name="toolTip">
+       <string extracomment="RSSI: -20 dBm"/>
+      </property>
+      <property name="statusTip">
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>../../../Dropbox/curiousmuch/20160820/Module V0.3 Artwork 20160820/g4139.png</pixmap>
+       <pixmap>../icon/devicetype/modulev3b.png</pixmap>
       </property>
-     </widget>
-     <widget class="QLabel" name="labelRSSI">
-      <property name="geometry">
-       <rect>
-        <x>100</x>
-        <y>50</y>
-        <width>86</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>RSSI:  -54dBm</string>
+      <property name="scaledContents">
+       <bool>false</bool>
       </property>
      </widget>
      <widget class="QLabel" name="labelModuleID">
       <property name="geometry">
        <rect>
-        <x>100</x>
-        <y>0</y>
-        <width>231</width>
-        <height>35</height>
+        <x>119</x>
+        <y>5</y>
+        <width>311</width>
+        <height>36</height>
        </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
       <property name="font">
        <font>
-        <family>Roboto Condensed</family>
+        <family>TakaoPGothic</family>
         <pointsize>20</pointsize>
+        <weight>50</weight>
         <italic>false</italic>
+        <bold>false</bold>
        </font>
       </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
       <property name="text">
-       <string>2f:32:56:4f:72:d8</string>
+       <string>Sarah Stanton</string>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="labelSignal">
+      <property name="geometry">
+       <rect>
+        <x>117</x>
+        <y>43</y>
+        <width>31</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string extracomment="-40 dBm"/>
+      </property>
+      <property name="pixmap">
+       <pixmap>../icon/network/network-wireless-signal-ok-symbolic.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
       </property>
      </widget>
      <widget class="QLabel" name="labelBattery">
       <property name="geometry">
        <rect>
-        <x>100</x>
-        <y>35</y>
-        <width>166</width>
-        <height>16</height>
+        <x>157</x>
+        <y>43</y>
+        <width>31</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string extracomment="50%"/>
+      </property>
+      <property name="statusTip">
+       <string extracomment="50%"/>
+      </property>
+      <property name="pixmap">
+       <pixmap>../icon/battery/battery-good-charging-symbolic.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="buttonSwitchOne">
+      <property name="geometry">
+       <rect>
+        <x>197</x>
+        <y>43</y>
+        <width>25</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>Battery:  98%</string>
+       <string>...</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>../icon/switch/switch-one-enabled.png</normaloff>../icon/switch/switch-one-enabled.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="autoRaise">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="buttonSwitchTwo">
+      <property name="geometry">
+       <rect>
+        <x>219</x>
+        <y>43</y>
+        <width>21</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>...</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>../icon/switch/switch-two-enabled.png</normaloff>../icon/switch/switch-two-enabled.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="autoRaise">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="buttonSwitchAdaptive">
+      <property name="geometry">
+       <rect>
+        <x>238</x>
+        <y>43</y>
+        <width>25</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>...</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>../icon/switch/switch-adaptive-disabled.png</normaloff>../icon/switch/switch-adaptive-disabled.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="autoRaise">
+       <bool>true</bool>
       </property>
      </widget>
     </widget>
-   </item>
-   <item>
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::MinimumExpanding</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>10</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item>
     <widget class="QWidget" name="widgetControls" native="true">
@@ -158,10 +267,10 @@
      <widget class="QLabel" name="labelStatus">
       <property name="geometry">
        <rect>
-        <x>-5</x>
-        <y>55</y>
-        <width>116</width>
-        <height>10</height>
+        <x>-70</x>
+        <y>47</y>
+        <width>181</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="font">
@@ -211,8 +320,11 @@
       <property name="checkable">
        <bool>true</bool>
       </property>
-      <property name="autoRaise">
-       <bool>false</bool>
+      <property name="popupMode">
+       <enum>QToolButton::DelayedPopup</enum>
+      </property>
+      <property name="toolButtonStyle">
+       <enum>Qt::ToolButtonTextOnly</enum>
       </property>
      </widget>
     </widget>
