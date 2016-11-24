@@ -13,6 +13,9 @@ class ParsingTools():
     def calculateSOC(self, raw_SOC):
         return raw_SOC.to_bytes(2, 'big')[0]
     
+    def getModuleIDfromTopic(self, topic):
+        return topic.split('/')[2]
+    
 class FieldGenerator():
     def generateMACID(self):
         import numpy as np

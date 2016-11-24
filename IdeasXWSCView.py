@@ -8,6 +8,26 @@ from IdeasXWSCBackend import IdeasXWSCNetworkThread
 from ParsingTools import ParsingTools
 from encoderconfigurationdialog import Ui_SwitchConfigDialog
 
+
+class IdeasXSwitchDialog(QtWidgets.QDialog):
+    
+    def __init__(self, switch, assignedKey): 
+        super(IdeasXSwitchDialog, self).__init__()
+        self.__ui = Ui_SwitchConfigDialog()
+        self.__ui.setupUi(self)
+        self.__ui.buttonApply.clicked.connect(self.submitOnClose)
+        self.key = assignedKey[0]
+        self.enable = assignedKey[1]
+        self.switch = switch
+        
+        self.__ui.checkSwitchEnable.setChecked(self.enable)
+        self.__ui.lineSwitchKey.setText(self.key)
+        
+    def submitOnClose(self):
+        self.key = self.__ui.lineSwitchKey.text() 
+        self.enable = self.__ui.checkSwitchEnable.isChecked()
+        self.accept()
+
 class IdeasXDeviceManager():
     def __init__(self, deviceClass, wsc): 
         self.__devices = {} 
@@ -53,7 +73,8 @@ class IdeasXEncoder(QtWidgets.QWidget):
         # This should become a static variable for the class
         self.__pathToIcon = {'network': './icon/network/', 
                              'battery': './icon/battery/', 
-                             'battery_charging': './icon/battery/'
+                             'battery_charging': './icon/battery/',
+                             'switch': './icon/switch/'
                             }
         self.__icon = {'network': ['network-wireless-offline-symbolic.png',
                                    'network-wireless-signal-weak-symbolic.png',
@@ -69,7 +90,13 @@ class IdeasXEncoder(QtWidgets.QWidget):
                                              'battery-caution-charging-symbolic.png', 
                                              'battery-low-charging-symbolic.png', 
                                              'battery-good-charging-symbolic.png', 
-                                             'battery-full-charged-symbolic.png']
+                                             'battery-full-charged-symbolic.png'],
+                        'switch': ['switch-one-enabled.png', 
+                                   'switch-one-disabled.png', 
+                                   'switch-two-enabled.png', 
+                                   'switch-two-disabled.png', 
+                                   'switch-adpative-enabled.png', 
+                                   'switch-adaptive-disabled.png']
                        }
         self.__deviceType = 'encoder'
         self.__wsc = wsc
@@ -82,28 +109,58 @@ class IdeasXEncoder(QtWidgets.QWidget):
 
         self.setupMenu()
         self.__ui.buttonActivate.clicked.connect(self.activateEncoder)
-        self.__ui.buttonSwitchOne.clicked.connect(self.openSwitchDialog)
-        self.__ui.buttonSwitchTwo.clicked.connect(self.openSwitchDialog)
-
-    def openSwitchDialog(self):
-        dialog = QtWidgets.QDialog()
-        dialog.ui = Ui_SwitchConfigDialog()
-        dialog.ui.setupUi(dialog)
-        dialog.exec_()
-             
+        self.__ui.buttonSwitchOne.clicked.connect(lambda: self.openSwitchDialog(self.__wsc.keyEmulator.switchOne,
+                                                                                 self.__wsc.keyEmulator.getAssignedKey(self.__strModuleID, self.__wsc.keyEmulator.switchOne)))
+        self.__ui.buttonSwitchTwo.clicked.connect(lambda: self.openSwitchDialog(self.__wsc.keyEmulator.switchTwo,
+                                                                                self.__wsc.keyEmulator.getAssignedKey(self.__strModuleID, self.__wsc.keyEmulator.switchTwo)))
+    
+    def openSwitchDialog(self, switch, assignedKey):
+        dialog = IdeasXSwitchDialog(switch, assignedKey)
+        if dialog.exec_():                
+            if dialog.key != None or len(dialog.key) == 1: 
+                self.__wsc.keyEmulator.assignKey(self.__strModuleID, dialog.switch, dialog.key, dialog.enable)
+                
+                # Think of a better way to do this
+                if dialog.enable: 
+                    if switch == self.__wsc.keyEmulator.switchOne: 
+                        self.__ui.buttonSwitchOne.setIcon(self.setupSwitchIcon(self.__icon['switch'][0]))
+                        
+                    if switch == self.__wsc.keyEmulator.switchTwo:
+                        self.__ui.buttonSwitchTwo.setIcon(self.setupSwitchIcon(self.__icon['switch'][2]))
+                        
+                    if switch == self.__wsc.keyEmulator.switchAdaptive:
+                        self.__ui.buttonSwitchAdaptive.setIcon(self.setupSwitchIcon(self.__icon['switch'][4]))
+                        
+                if dialog.enable == False: 
+                    if switch == self.__wsc.keyEmulator.switchOne: 
+                        self.__ui.buttonSwitchOne.setIcon(self.setupSwitchIcon(self.__icon['switch'][1]))
+                        
+                    if switch == self.__wsc.keyEmulator.switchTwo:
+                        self.__ui.buttonSwitchTwo.setIcon(self.setupSwitchIcon(self.__icon['switch'][3]))
+                        
+                    if switch == self.__wsc.keyEmulator.switchAdaptive:
+                        self.__ui.buttonSwitchAdaptive.setIcon(self.setupSwitchIcon(self.__icon['switch'][5]))
+                        
+    def setupSwitchIcon(self, path):
+        icon = QtGui.QIcon()
+        iconPath = self.__pathToIcon['switch']
+        iconPath = iconPath + path
+        icon.addPixmap(QtGui.QPixmap(iconPath), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        return icon
+              
     def setupMenu(self):
         shutdownAction = QtWidgets.QAction('Shutdown Encoder', self)
         shutdownAction.triggered.connect(lambda: self.__wsc.shutdownDevice(self.__strModuleID, None))
         
         deviceMenu = QtWidgets.QMenu()
-        deviceMenu.addSection("General Actions")
-        deviceMenu.addAction("Pair Encoder with Actuator")
-        deviceMenu.addAction("Train Adaptive Switch")
-        deviceMenu.addAction("Configure Module")
+        #deviceMenu.addSection("General Actions")
+        #deviceMenu.addAction("Pair Encoder with Actuator")
+        #deviceMenu.addAction("Train Adaptive Switch")
+        #deviceMenu.addAction("Configure Module")
         deviceMenu.addSection("Encoder Commands")
         deviceMenu.addAction(shutdownAction)
-        deviceMenu.addAction("Restart Encoder")
-        deviceMenu.addAction("Update Firmware")
+        #deviceMenu.addAction("Restart Encoder")
+       # deviceMenu.addAction("Update Firmware")
         
         self.__ui.buttonMenu.setPopupMode(2)
         self.__ui.buttonMenu.setMenu(deviceMenu)

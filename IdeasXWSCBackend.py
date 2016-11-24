@@ -80,6 +80,7 @@ class IdeasXWSCNetworkThread(QObject):
         self._dataParser = IdeasXMessages.DataMessage()
         self._commandParser = IdeasXMessages.CommandMessage()
         self._parserTools = ParsingTools()
+        self.keyEmulator = IdeasXKeyEmulator()
         
         # MQTT Client Object
         self._mqttc = mqtt.Client(self.__clientID, clean_session=True, userdata=None, protocol='MQTTv311')
@@ -126,6 +127,7 @@ class IdeasXWSCNetworkThread(QObject):
         try: 
             self._dataParser.ParseFromString(msg.payload)
             print("GPIO States: " + bin(self._dataParser.button))
+            #self.__keyEmulator.emulateKey( self._parserTools.getModuleIDfromTopic(msg.topic),self._dataParser.button)
         except: 
             self.printError("Failure to parse message")
             if self.__debug:
@@ -288,15 +290,71 @@ class IdeasXWSCNetworkThread(QObject):
     def printInfo(self, msgStr):
         print("WSC: " + msgStr)
         
-class IdeasXDeviceTypes():
-    def __init__(self): 
-        self.encoder = 'encoder'
-        self.actuator = 'actuator'
-                
-        
 
+from pykeyboard import PyKeyboard
+        
+class IdeasXKeyEmulator():
+    def __init__(self):
+        self.__system = sys.platform
+        self.printInfo("Detected system is " + self.__system) 
+        self.__k = PyKeyboard() 
+        self.switchOne = 0
+        self.switchTwo = 1
+        self.switchAdaptive = 2
+        self.__assignedKeys = {'default': {self.switchOne: ["1", True], 
+                                           self.switchTwo: ["2", True], 
+                                           self.switchAdaptive: ["3", True]}}
+        self.__activeEncoders = []
+        
+    def activateEncoder(self, encoder):
+        if encoder not in self.__activeEncoders: 
+            self.__activeEncoders.append(encoder)
+
+    def deactivateEncoder(self, encoder):
+        if encoder in self.__activeEncoders:
+            self.__activeEncoders.pop(encoder)
+        
+    def assignKey(self, encoder, switch, key, active=True):
+        if switch not in [self.switchOne, self.switchTwo, self.switchAdaptive]:  
+            raise ValueError("Must be IdeasXKeyEmulator() provided switch")
+                        
+        if encoder not in self.__assignedKeys.keys(): 
+            self.__assignedKeys[encoder] = self.__assignedKeys['default']
+        self.__assignedKeys[encoder][switch] = [key, active]
+        if active == False: 
+            self.__k.release_key(key)
+        
+    def getAssignedKey(self, encoder, switch):
+        if encoder not in self.__assignedKeys.keys(): 
+            encoder = 'default'
+        return self.__assignedKeys[encoder][switch]
+        
+    def emulateKey(self, encoder, buttonPayload, deviceType=None):
+        '''
+             This is horrible and needs to be improved
+        '''
+        if encoder in self.__activeEncoders or True: 
+            if encoder not in self.__assignedKeys.keys(): 
+                encoder = 'default'
+            assignedKeys = self.__assignedKeys[encoder]
+            
+            for switch in [self.switchOne, self.switchTwo, self.switchAdaptive]:  
+                if (buttonPayload&(1<<switch)!=0):
+                    self.__k.press_key(assignedKeys[switch][0])
+                else: 
+                    self.__k.release_key(assignedKeys[switch][0])
+
+            
+    def printInfo(self, msg):
+        print("EM: " + msg)    
+        
+    
+    #def emulatePress(self, buttonPayload):
+        
+        
+        
 if __name__ == "__main__": 
-    Host = "ideasx.duckdns.org"
+    Host = "ideasx.dnuckdns.org"
 #    Host = "192.168.0.101"
 #    Host = "10.42.0.1"
     Port = 1883 
@@ -307,19 +365,37 @@ if __name__ == "__main__":
     cmdArg = None;
     cmdTest = False; 
     
+    encodeId = '23:34'
     
-    wsc = WorkstationClientClass()
-        
-    if cmdTest: 
-        wsc.cmdStartWorkstationClient(Host, Port, KeepAlive)
-    else: 
-        wsc.guiStartWorkstationClient(Host, Port, KeepAlive)
-        time.sleep(3)
-        wsc.activateEncoder('18:fe:34:f1:f2:8d')
-        print(wsc.subscribedEncoders)
-        time.sleep(2)
-        wsc.deactivateEncoder('18:fe:34:f1:f2:8d')
-        print(wsc.subscribedEncoders)
-        time.sleep(10)
-        wsc.killWSC()
+    km = IdeasXKeyEmulator()
+    
+    km.activateEncoder(encodeId)
+    km.emulateKey(encodeId, 1)
+    time.sleep(0.1)
+    km.emulateKey(encodeId, 0) 
+    time.sleep(0.1)
+
+    km.emulateKey(encodeId, 2)
+    time.sleep(0.1)
+    km.emulateKey(encodeId, 0)
+    time.sleep(0.1)
+    km.emulateKey(encodeId, 4)
+    time.sleep(0.1)
+    km.emulateKey(encodeId, 0)
+    
+    
+#     wsc = WorkstationClientClass()
+#         
+#     if cmdTest: 
+#         wsc.cmdStartWorkstationClient(Host, Port, KeepAlive)
+#     else: 
+#         wsc.guiStartWorkstationClient(Host, Port, KeepAlive)
+#         time.sleep(3)
+#         wsc.activateEncoder('18:fe:34:f1:f2:8d')
+#         print(wsc.subscribedEncoders)
+#         time.sleep(2)
+#         wsc.deactivateEncoder('18:fe:34:f1:f2:8d')
+#         print(wsc.subscribedEncoders)
+#         time.sleep(10)
+#         wsc.killWSC()
         
