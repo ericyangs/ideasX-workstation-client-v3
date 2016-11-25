@@ -52,7 +52,8 @@ class IdeasXWSCNetworkThread(QObject):
     
     # define Qt signals (I don't understand why this is here) 
     encoderUpdate = pyqtSignal([dict], name='encoderUpdate')
-    
+    networkStatus = pyqtSignal([str], name='networkStatus')
+    networkUpdate = pyqtSignal([str], name='networkUpdate')
     
     def __init__(self, settingFile=None, clientID = None, debug=True, mqttdebug=True):
         super(IdeasXWSCNetworkThread, self).__init__()
@@ -105,8 +106,10 @@ class IdeasXWSCNetworkThread(QObject):
     def mqtt_on_connect(self, mqttc, backend_data, flags, rc): 
         if rc == 0: 
             self.printInfo('Connected to %s: %s' % (mqttc._host, mqttc._port))
+            self.networkStatus.emit("Connected to %s: %s" % (mqttc._host, mqttc._port))
         else: 
             self.printInfo('rc: ' + str(rc))
+            self.networkStatus.emit('Connection Failure (rc: ' +str(rc))
         self.printLine()
 
     def mqtt_on_disconnect(self, mqttc, backend_data, rc):
@@ -127,12 +130,17 @@ class IdeasXWSCNetworkThread(QObject):
         try: 
             self._dataParser.ParseFromString(msg.payload)
             print("GPIO States: " + bin(self._dataParser.button))
-            #self.__keyEmulator.emulateKey( self._parserTools.getModuleIDfromTopic(msg.topic),self._dataParser.button)
-        except: 
+            self.keyEmulator.emulateKey( self._parserTools.getModuleIDfromTopic(msg.topic),self._dataParser.button)
+        except Exception as ex: 
             self.printError("Failure to parse message")
             if self.__debug:
                 print("Raw Message: %s" %msg.payload)
+            template = "An exception of type {0} occured. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+            print(message)
+            
             self.printLine()
+            
             
     def mqtt_on_health(self, mqttc, backend_data, msg):
         self.printInfo("Health Message")
@@ -222,9 +230,6 @@ class IdeasXWSCNetworkThread(QObject):
         self._mqttc.loop_stop()
         self.printInfo("Murdered MQTT thread.")
         
-    def attachRefreshCallback(self, cb):
-        self.__refreshCb = cb
-        
     def getDevices(self):
         return self.encoders
             
@@ -278,6 +283,7 @@ class IdeasXWSCNetworkThread(QObject):
                             self._commandParser.SerializeToString().decode('utf-8') ,
                             qos=1,
                             retain=False)
+        self.networkUpdate.emit("Send shutdown command to Encoder " + deviceMACAddress)
         self.printInfo("Send Shutdown Command to Encoder " + deviceMACAddress)
         
     def printLine(self):
@@ -301,9 +307,9 @@ class IdeasXKeyEmulator():
         self.switchOne = 0
         self.switchTwo = 1
         self.switchAdaptive = 2
-        self.__assignedKeys = {'default': {self.switchOne: ["1", True], 
-                                           self.switchTwo: ["2", True], 
-                                           self.switchAdaptive: ["3", True]}}
+        self.__assignedKeys = {'default': {self.switchOne: ["1", True, 0], 
+                                           self.switchTwo: ["2", True, 0], 
+                                           self.switchAdaptive: ["3", False, 0]}}
         self.__activeEncoders = []
         
     def activateEncoder(self, encoder):
@@ -317,13 +323,21 @@ class IdeasXKeyEmulator():
     def assignKey(self, encoder, switch, key, active=True):
         if switch not in [self.switchOne, self.switchTwo, self.switchAdaptive]:  
             raise ValueError("Must be IdeasXKeyEmulator() provided switch")
-                        
-        if encoder not in self.__assignedKeys.keys(): 
-            self.__assignedKeys[encoder] = self.__assignedKeys['default']
+        
+        if encoder not in list(self.__assignedKeys.keys()): 
+            self.__assignedKeys[encoder] = self.__assignedKeys['default'].copy()
+        
+        print(self.__assignedKeys)
+            
         self.__assignedKeys[encoder][switch] = [key, active]
         if active == False: 
             self.__k.release_key(key)
-        
+            
+    def getAssignedKeys(self, encoder):
+        if encoder not in self.__assignedKeys.keys(): 
+            encoder = 'default'
+        return self.__assignedKeys[encoder]
+            
     def getAssignedKey(self, encoder, switch):
         if encoder not in self.__assignedKeys.keys(): 
             encoder = 'default'
@@ -340,9 +354,10 @@ class IdeasXKeyEmulator():
             
             for switch in [self.switchOne, self.switchTwo, self.switchAdaptive]:  
                 if (buttonPayload&(1<<switch)!=0):
-                    self.__k.press_key(assignedKeys[switch][0])
-                else: 
-                    self.__k.release_key(assignedKeys[switch][0])
+                    if assignedKeys[switch][1]:
+                        self.__k.tap_key(assignedKeys[switch][0])
+                #else: 
+                    #self.__k.release_key(assignedKeys[switch][0])
 
             
     def printInfo(self, msg):
@@ -383,6 +398,7 @@ if __name__ == "__main__":
     time.sleep(0.1)
     km.emulateKey(encodeId, 0)
     
+
     
 #     wsc = WorkstationClientClass()
 #         

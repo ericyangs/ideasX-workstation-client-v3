@@ -39,7 +39,7 @@ class IdeasXDeviceManager():
         self.__wsc = wsc
           
     def refreshDevices(self, devices):
-        for deviceMAC in devices.keys(): 
+        for deviceMAC in list(devices.keys()): 
             if deviceMAC in self.__devices.keys(): 
                 print("Updating Device")
                 self.__devices[deviceMAC].updateDevice(devices[deviceMAC])
@@ -95,7 +95,7 @@ class IdeasXEncoder(QtWidgets.QWidget):
                                    'switch-one-disabled.png', 
                                    'switch-two-enabled.png', 
                                    'switch-two-disabled.png', 
-                                   'switch-adpative-enabled.png', 
+                                   'switch-adaptive-enabled.png', 
                                    'switch-adaptive-disabled.png']
                        }
         self.__deviceType = 'encoder'
@@ -106,7 +106,10 @@ class IdeasXEncoder(QtWidgets.QWidget):
         self.__ui.setupUi(self)
         self._parserTools = ParsingTools()
         self.updateDevice(encoder)        
+        self.updateSwitchIcons()
+        
 
+        # Setup Signals
         self.setupMenu()
         self.__ui.buttonActivate.clicked.connect(self.activateEncoder)
         self.__ui.buttonSwitchOne.clicked.connect(lambda: self.openSwitchDialog(self.__wsc.keyEmulator.switchOne,
@@ -117,29 +120,9 @@ class IdeasXEncoder(QtWidgets.QWidget):
     def openSwitchDialog(self, switch, assignedKey):
         dialog = IdeasXSwitchDialog(switch, assignedKey)
         if dialog.exec_():                
-            if dialog.key != None or len(dialog.key) == 1: 
+            if dialog.key != None and len(dialog.key) == 1: 
                 self.__wsc.keyEmulator.assignKey(self.__strModuleID, dialog.switch, dialog.key, dialog.enable)
-                
-                # Think of a better way to do this
-                if dialog.enable: 
-                    if switch == self.__wsc.keyEmulator.switchOne: 
-                        self.__ui.buttonSwitchOne.setIcon(self.setupSwitchIcon(self.__icon['switch'][0]))
-                        
-                    if switch == self.__wsc.keyEmulator.switchTwo:
-                        self.__ui.buttonSwitchTwo.setIcon(self.setupSwitchIcon(self.__icon['switch'][2]))
-                        
-                    if switch == self.__wsc.keyEmulator.switchAdaptive:
-                        self.__ui.buttonSwitchAdaptive.setIcon(self.setupSwitchIcon(self.__icon['switch'][4]))
-                        
-                if dialog.enable == False: 
-                    if switch == self.__wsc.keyEmulator.switchOne: 
-                        self.__ui.buttonSwitchOne.setIcon(self.setupSwitchIcon(self.__icon['switch'][1]))
-                        
-                    if switch == self.__wsc.keyEmulator.switchTwo:
-                        self.__ui.buttonSwitchTwo.setIcon(self.setupSwitchIcon(self.__icon['switch'][3]))
-                        
-                    if switch == self.__wsc.keyEmulator.switchAdaptive:
-                        self.__ui.buttonSwitchAdaptive.setIcon(self.setupSwitchIcon(self.__icon['switch'][5]))
+                self.updateSwitchIcons()
                         
     def setupSwitchIcon(self, path):
         icon = QtGui.QIcon()
@@ -151,6 +134,9 @@ class IdeasXEncoder(QtWidgets.QWidget):
     def setupMenu(self):
         shutdownAction = QtWidgets.QAction('Shutdown Encoder', self)
         shutdownAction.triggered.connect(lambda: self.__wsc.shutdownDevice(self.__strModuleID, None))
+        testKeysAction = QtWidgets.QAction("Test Keys", self)
+        testKeysAction.triggered.connect(self.testKeys)
+        
         
         deviceMenu = QtWidgets.QMenu()
         #deviceMenu.addSection("General Actions")
@@ -160,7 +146,9 @@ class IdeasXEncoder(QtWidgets.QWidget):
         deviceMenu.addSection("Encoder Commands")
         deviceMenu.addAction(shutdownAction)
         #deviceMenu.addAction("Restart Encoder")
-       # deviceMenu.addAction("Update Firmware")
+        #deviceMenu.addAction("Update Firmware")
+        deviceMenu.addSection("Engineering Tools")
+        deviceMenu.addAction(testKeysAction)
         
         self.__ui.buttonMenu.setPopupMode(2)
         self.__ui.buttonMenu.setMenu(deviceMenu)
@@ -173,7 +161,6 @@ class IdeasXEncoder(QtWidgets.QWidget):
         else: 
             print("Deactivating Encoder: " + self.__ui.labelModuleID.text())
             self.__ui.buttonActivate.setText("Activate")
-            self.sendCommand.emit(self.__ui.labelModuleID.text())
         
     def updateDevice(self, encoder):      
         self.__rssi = encoder['rssi']
@@ -228,8 +215,37 @@ class IdeasXEncoder(QtWidgets.QWidget):
         rssiIcon = self.__pathToIcon['network'] + self.__icon['network'][rssiIcon]  
         self.__ui.labelSignal.setPixmap(QtGui.QPixmap(rssiIcon))
         self.__ui.labelSignal.setToolTip(str(rssi) + " dBm")
+        
+    def updateSwitchIcons(self):
+        keys = self.__wsc.keyEmulator.getAssignedKeys(self.__strModuleID)
+        if keys[self.__wsc.keyEmulator.switchOne][1]:
+            iconPath = self.__icon['switch'][0]
+        else: 
+            iconPath = self.__icon['switch'][1]
+        
+        self.__ui.buttonSwitchOne.setIcon(self.setupSwitchIcon(iconPath))
             
+        if keys[self.__wsc.keyEmulator.switchTwo][1]:
+            iconPath = self.__icon['switch'][2]
+        else: 
+            iconPath =  self.__icon['switch'][3]
+        
+        self.__ui.buttonSwitchTwo.setIcon(self.setupSwitchIcon(iconPath))
+        
+        if keys[self.__wsc.keyEmulator.switchAdaptive][1]:
+            iconPath = self.__icon['switch'][4]
+        else:
+            iconPath = self.__icon['switch'][5]
+            
+        self.__ui.buttonSwitchAdaptive.setIcon(self.setupSwitchIcon(iconPath))
 
+    def testKeys(self):
+        time.sleep(3)
+        for payload in [1, 0, 2, 0, 4, 0]:
+            self.__wsc.keyEmulator.emulateKey(self.__strModuleID, payload)
+            time.sleep(0.1)
+
+    
 
 class IdeasXMainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -243,7 +259,17 @@ class IdeasXMainWindow(QtWidgets.QMainWindow):
 
     def setEncoderLayout(self, layout):
         self.__ui.contentEncoder.setLayout(layout)
-    
+        
+    def setStatusBarMessage(self, msg):
+        status = QtWidgets.QLabel()
+        status.setText(msg)
+        status.setAlignment(QtCore.Qt.AlignLeft)
+        #status.setAlignment(QtCore.Qt.AlignLeft)
+        self.__ui.statusbar.addWidget(status, 1) # IDK what the 1 does...I need to look it up
+        
+    def setStatusBarUpdate(self, msg):
+        self.__ui.statusbar.showMessage(msg)
+
         
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
@@ -252,8 +278,13 @@ if __name__ == "__main__":
     wsc = IdeasXWSCNetworkThread()
     encoderManager = IdeasXDeviceManager(IdeasXEncoder, wsc)
     mainWindow.setEncoderLayout(encoderManager.returnLayout())
+    
     wsc.encoderUpdate.connect(encoderManager.refreshDevices)
+    wsc.networkStatus.connect(mainWindow.setStatusBarMessage)
+    wsc.networkUpdate.connect(mainWindow.setStatusBarUpdate)
     wsc.guiStartWorkstationClient('ideasx.duckdns.org')
+    
+    
     
     #timer = QtCore.QTimer()
     #timer.timeout.connect(mainWindow.hideEncoder)
