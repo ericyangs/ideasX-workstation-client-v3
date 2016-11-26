@@ -222,7 +222,7 @@
        <attribute name="title">
         <string>Settings</string>
        </attribute>
-       <layout class="QFormLayout" name="formLayout">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="leftMargin">
          <number>9</number>
         </property>
@@ -235,59 +235,216 @@
         <property name="bottomMargin">
          <number>9</number>
         </property>
-        <item row="0" column="0">
-         <widget class="QLabel" name="labelNetworkBroker">
-          <property name="text">
-           <string>Network Broker:</string>
+        <item>
+         <widget class="QGroupBox" name="groupNetwork">
+          <property name="title">
+           <string>Network Settings</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelNetworkBroker">
+             <property name="text">
+              <string>Network Broker:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="networkBroker">
+             <property name="inputMethodHints">
+              <set>Qt::ImhUrlCharactersOnly</set>
+             </property>
+             <property name="placeholderText">
+              <string>URL or IP</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="networkPort">
+             <property name="inputMethodHints">
+              <set>Qt::ImhPreferNumbers</set>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>Port</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelLocalBroker">
+             <property name="text">
+              <string>Local Broker:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="localBroker">
+             <property name="inputMethodHints">
+              <set>Qt::ImhUrlCharactersOnly</set>
+             </property>
+             <property name="placeholderText">
+              <string>URL or IP</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="localPort">
+             <property name="inputMethodHints">
+              <set>Qt::ImhPreferNumbers</set>
+             </property>
+             <property name="placeholderText">
+              <string>Port</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="otaServer">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>URL or IP</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="labelOTA">
+             <property name="text">
+              <string>OTA Server:</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDialogButtonBox" name="buttonBoxNetwork">
+          <property name="standardButtons">
+           <set>QDialogButtonBox::Apply|QDialogButtonBox::Discard</set>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="networkBroker">
-          <property name="placeholderText">
-           <string>URL or IP</string>
+        <item alignment="Qt::AlignTop">
+         <widget class="QGroupBox" name="groupDeviceSettings">
+          <property name="title">
+           <string>Device Settings</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout_2">
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelAPSelector">
+             <property name="text">
+              <string>Wi-Fi Access Point:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="selectAP">
+             <property name="suffix">
+              <string/>
+             </property>
+             <property name="prefix">
+              <string>Access Point </string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>5</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelSSID">
+             <property name="text">
+              <string>SSID:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="wifiSSID"/>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelPassword">
+             <property name="text">
+              <string>Password:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="wifiPassword"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDialogButtonBox" name="buttonBoxDevice">
+          <property name="standardButtons">
+           <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="networkPort">
-          <property name="text">
-           <string/>
+        <item>
+         <widget class="QGroupBox" name="groupUpdat">
+          <property name="title">
+           <string>WSC Update Settings</string>
           </property>
-          <property name="placeholderText">
-           <string>Port</string>
-          </property>
+          <layout class="QFormLayout" name="formLayout_3">
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEdit">
+             <property name="placeholderText">
+              <string>URL to GitHub Repository</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="pushButton">
+             <property name="text">
+              <string>Check for Update</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>WSC Software Repository:</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="labelLocalBroker">
-          <property name="text">
-           <string>Local Broker:</string>
+        <item>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Global Commands</string>
           </property>
+          <layout class="QFormLayout" name="formLayout_4">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Global Command: </string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="comboBox">
+             <property name="currentText">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="pushButton_2">
+             <property name="text">
+              <string>Send Command</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
-        <item row="4" column="1">
-         <widget class="QLineEdit" name="localBroker">
-          <property name="placeholderText">
-           <string>URL or IP</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QLineEdit" name="localPort">
-          <property name="placeholderText">
-           <string>Port</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="1">
-         <widget class="QPushButton" name="buttonSettings">
-          <property name="text">
-           <string>Apply Settings</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="0">
+        <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -299,56 +456,6 @@
            </size>
           </property>
          </spacer>
-        </item>
-        <item row="10" column="0">
-         <widget class="QLabel" name="labelAPSelector">
-          <property name="text">
-           <string>Wi-Fi Access Point:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="1">
-         <widget class="QSpinBox" name="selectAP">
-          <property name="suffix">
-           <string/>
-          </property>
-          <property name="prefix">
-           <string>AP </string>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>5</number>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="0">
-         <widget class="QLabel" name="labelSSID">
-          <property name="text">
-           <string>SSID:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="1">
-         <widget class="QLineEdit" name="wifiSSID"/>
-        </item>
-        <item row="13" column="0">
-         <widget class="QLabel" name="labelPassword">
-          <property name="text">
-           <string>Password:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="13" column="1">
-         <widget class="QLineEdit" name="wifiPassword"/>
-        </item>
-        <item row="15" column="1">
-         <widget class="QPushButton" name="buttonTrainDevice">
-          <property name="text">
-           <string>Train IdeasX Device</string>
-          </property>
-         </widget>
         </item>
        </layout>
       </widget>

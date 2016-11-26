@@ -1,3 +1,4 @@
+#!/usr/bin/env python`
 import sys
 import time
 import sip
@@ -248,42 +249,119 @@ class IdeasXEncoder(QtWidgets.QWidget):
     
 
 class IdeasXMainWindow(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, wsc):
         super(IdeasXMainWindow, self).__init__()
         self.__ui = Ui_MainWindow()
         self.__ui.setupUi(self)
-
+        self.__wsc = wsc 
+        
         p = self.__ui.contentEncoder.palette()
         p.setColor(self.backgroundRole(), QtCore.Qt.white)
         self.__ui.contentEncoder.setPalette(p)
+        
+        self.__ui.statusMessageWidget = QtWidgets.QLabel()
+        self.__ui.statusMessageWidget.setText("Starting WSC...")
+        self.__ui.statusMessageWidget.setAlignment(QtCore.Qt.AlignLeft)
+        self.__ui.statusbar.addWidget(self.__ui.statusMessageWidget, 1)
+                
+        self.__org = 'IdeasX'
+        self.__app = 'Workstation-Client'
+        
+        self.restoreSettings()
+        
+        self.__ui.buttonSettings.clicked.connect(self.updateBrokerSettings)
+        
+        
+        
 
     def setEncoderLayout(self, layout):
         self.__ui.contentEncoder.setLayout(layout)
         
     def setStatusBarMessage(self, msg):
-        status = QtWidgets.QLabel()
-        status.setText(msg)
-        status.setAlignment(QtCore.Qt.AlignLeft)
-        #status.setAlignment(QtCore.Qt.AlignLeft)
-        self.__ui.statusbar.addWidget(status, 1) # IDK what the 1 does...I need to look it up
+        self.__ui.statusbar.clearMessage()
+        self.__ui.statusMessageWidget.setText(msg)
         
     def setStatusBarUpdate(self, msg):
         self.__ui.statusbar.showMessage(msg)
 
+    def saveSettings(self):
+        '''
+            Saves various backend and front information via Qt's system agnoistic classes. 
+            The following information is saved and restored: 
+            
+            1) MainWindow size and position 
+            2) Switch configuration and assigned keys 
+            3) Encoder Nicknames
+            4) Broker URL and Ports
+        '''
+        # MainWindow Settings
+        settings = QtCore.QSettings(self.__org, self.__app)
+        settings.beginGroup("MainWindow")
+        settings.setValue("size", self.size())
+        settings.setValue("pos", self.pos())
+        settings.endGroup()      
+        
+    def updateBrokerSettings(self):
+        print(self.__ui.networkBroker.text())
+        self.__NetworkBroker = self.__ui.networkBroker.text()
+        self.__LocalBroker = self.__ui.localBroker.text()
+        self.__NetworkPort = int(self.__ui.networkPort.text())
+        self.__LocalPort = int(self.__ui.localPort.text())  
+        
+        settings = QtCore.QSettings(self.__org, self.__app) 
+        settings.beginGroup("Broker")
+        settings.setValue('NetworkBroker', self.__NetworkBroker)
+        settings.setValue('NetworkPort', self.__NetworkPort)
+        settings.setValue('LocalBroker', self.__LocalBroker)
+        settings.setValue('LocalPort', self.__LocalPort)
+        settings.endGroup()
+        self.saveSettings()
+        
+        #self.__ui.statusbar.showMessage("Updated Broker settings. Please Restart the WSC.")
+        self.__wsc.guiRestartWSC()
+        
+    def restoreSettings(self):
+        settings = QtCore.QSettings(self.__org, self.__app)
+        settings.beginGroup("MainWindow")
+        self.resize(settings.value("size", QtCore.QSize(525, 648)))
+        self.move(settings.value("pos", QtCore.QPoint(0, 0)))
+        settings.endGroup()
+        
+        settings.beginGroup("Broker")
+        self.__NetworkBroker = settings.value('NetworkBroker', 'ideasx.duckdns.org')
+        self.__NetworkPort = settings.value('NetworkPort', 1883)
+        self.__LocalBroker = settings.value('LocalBroker', '10.42.0.1')
+        self.__LocalPort = settings.value('LocalPort', 1883)
+        settings.endGroup()
+        
+        self.__ui.networkBroker.setText(self.__NetworkBroker)
+        self.__ui.networkPort.setText(str(self.__NetworkPort))
+        self.__ui.localBroker.setText(self.__LocalBroker)
+        self.__ui.localPort.setText(str(self.__LocalPort))
+        
+        settings.beginGroup('OTAServer')
+        self.__OTAServer = settings.value('OTAServer', 'ideasx.duckdns.org')
+        settings.endGroup()
+        
+    def closeEvent(self, event):
+        self.saveSettings()
+        super(IdeasXMainWindow, self).closeEvent(event)
+        
+        
         
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon('icon/logo/ideasx.png'))
-    mainWindow = IdeasXMainWindow()
     wsc = IdeasXWSCNetworkThread()
+    mainWindow = IdeasXMainWindow(wsc)
     encoderManager = IdeasXDeviceManager(IdeasXEncoder, wsc)
     mainWindow.setEncoderLayout(encoderManager.returnLayout())
     
     wsc.encoderUpdate.connect(encoderManager.refreshDevices)
     wsc.networkStatus.connect(mainWindow.setStatusBarMessage)
     wsc.networkUpdate.connect(mainWindow.setStatusBarUpdate)
-    wsc.guiStartWorkstationClient('ideasx.duckdns.org')
-    
+    #wsc.guiStartWorkstationClient('ideasx.duckdns.org')
+    wsc.guiStartWorkstationClient()
     
     
     #timer = QtCore.QTimer()

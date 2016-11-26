@@ -45,7 +45,7 @@ except ImportError:
     print("The python classes for IdeasX are missing. Try running the Makefile in" +
             "ideasX-messages.")
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, QSettings
     
     
 class IdeasXWSCNetworkThread(QObject): 
@@ -54,6 +54,7 @@ class IdeasXWSCNetworkThread(QObject):
     encoderUpdate = pyqtSignal([dict], name='encoderUpdate')
     networkStatus = pyqtSignal([str], name='networkStatus')
     networkUpdate = pyqtSignal([str], name='networkUpdate')
+    settingsError = pyqtSignal([str], name='settingsError')
     
     def __init__(self, settingFile=None, clientID = None, debug=True, mqttdebug=True):
         super(IdeasXWSCNetworkThread, self).__init__()
@@ -65,6 +66,8 @@ class IdeasXWSCNetworkThread(QObject):
         self.__errorIndex = 0 
         self.__refreshCb = None
         
+        self.__org = 'IdeasX'
+        self.__app = 'Workstation-Client'
         
         # MQTT Topics 
         self.__DEVICETYPE = ["/encoder/+"]
@@ -203,25 +206,44 @@ class IdeasXWSCNetworkThread(QObject):
             self.printError("There was a fucking mistake here.")
             sys.exit(1)
             
-    def guiStartWorkstationClient(self, ip="server.ideasx.tech", port=1883, keepAlive=60):
-        self.ip = ip 
-        self.port = port 
+    def guiStartWorkstationClient(self, ip=None, port=1883, keepAlive=60):
+        
         self.keepAlive = keepAlive
+        
+        if ip == None:
+            settings = QSettings(self.__org, self.__app) 
+            settings.beginGroup('Broker')
+            self.ip = settings.value('NetworkBroker', 'ideasx.duckdns.org')
+            self.port = settings.value('NetworkPort', 1883)
+            #self.__LocalBroker = settings.value('LocalBroker', '10.42.0.1')
+            self.__LocalPort = settings.value('LocalPort', 1883)
+            settings.endGroup()
+        else:
+            self.printLine()
+            self.printInfo("Loading hardcoded defaults")
+            self.printLine()
+            self.ip = ip 
+            self.port = port 
         
         self.printLine()
         self.printInfo("Starting Workstation Client (WSC)")
         self.printLine()
         
         try: 
-            self._mqttc.connect(self.ip, self.port, self.keepAlive)
+            self._mqttc.connect(self.ip, int(self.port), self.keepAlive)
             for device in self.__DEVICETYPE:
                 self._mqttc.subscribe(device + self.__HEALTHTOPIC, 0)
                 self._mqttc.subscribe(device + self.__DATATOPIC, 0)
             self._mqttc.loop_start() # start MQTT Client Thread 
         except: 
             self.printError("There was a fucking mistake here.")
-            sys.exit(1)
+            self.networkStatus.emit("Oh-no! Broker settings are incorrect or there is a network failure")
+#             sys.exit(1)
             
+    def guiRestartWSC(self):
+        self.killWSC()
+        self.networkUpdate.emit("Restarting WSC...")
+        self.guiStartWorkstationClient()
             
     def restartWSC(self):
         self.printInfo("This really doesn't do anything")
@@ -342,6 +364,15 @@ class IdeasXKeyEmulator():
         if encoder not in self.__assignedKeys.keys(): 
             encoder = 'default'
         return self.__assignedKeys[encoder][switch]
+    
+    def getKeyDatabase(self):
+        return self.__assignedKeys 
+    
+    def getDefaultKeyEntry(self):
+        return self.__assignedKeys['default']
+    
+    def setKeyDatabase(self, db):
+        self.__assignedKeys = db
         
     def emulateKey(self, encoder, buttonPayload, deviceType=None):
         '''
