@@ -130,7 +130,7 @@ class Ui_MainWindow(object):
         self.formLayout.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.labelOTA)
         self.verticalLayout_2.addWidget(self.groupNetwork)
         self.buttonBoxNetwork = QtWidgets.QDialogButtonBox(self.tabSetting)
-        self.buttonBoxNetwork.setStandardButtons(QtWidgets.QDialogButtonBox.Apply|QtWidgets.QDialogButtonBox.Discard)
+        self.buttonBoxNetwork.setStandardButtons(QtWidgets.QDialogButtonBox.Apply|QtWidgets.QDialogButtonBox.Cancel)
         self.buttonBoxNetwork.setObjectName("buttonBoxNetwork")
         self.verticalLayout_2.addWidget(self.buttonBoxNetwork)
         self.groupDeviceSettings = QtWidgets.QGroupBox(self.tabSetting)

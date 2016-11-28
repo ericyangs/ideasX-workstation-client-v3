@@ -3,12 +3,12 @@ import sys
 import time
 import sip
 from PyQt5 import QtCore, QtGui, QtWidgets
-from mainwindow import Ui_MainWindow
+from mainwindow2 import Ui_MainWindow
 from ideasxdevice import Ui_IdeasXDevice
 from IdeasXWSCBackend import IdeasXWSCNetworkThread
 from ParsingTools import ParsingTools
 from encoderconfigurationdialog import Ui_SwitchConfigDialog
-
+from devicedialog import Ui_Dialog
 
 class IdeasXSwitchDialog(QtWidgets.QDialog):
     
@@ -28,6 +28,34 @@ class IdeasXSwitchDialog(QtWidgets.QDialog):
         self.key = self.__ui.lineSwitchKey.text() 
         self.enable = self.__ui.checkSwitchEnable.isChecked()
         self.accept()
+        
+class IdeasXDeviceInformationDialog(QtWidgets.QDialog):
+    newDeviceName = QtCore.pyqtSignal(['QString'], name='newDeviceName')
+    
+    def __init__(self):
+        super(IdeasXDeviceInformationDialog, self).__init__()
+        self.__ui = Ui_Dialog()
+        self.__ui.setupUi(self)
+        self.__ui.lineAlias.textEdited.connect(lambda: self.newDeviceName.emit(self.__ui.lineAlias.text()))
+        
+    def updateDisplay(self, encoder):
+        self.__ui.labelBatteryCapacity.setText(str(encoder['soc']))
+        self.__ui.labelBatteryVoltage.setText(str(encoder['vcell']))
+        self.__ui.labelLowBattery.setText(str(encoder['lb']))
+        self.__ui.labelChargeState.setText('N/A')
+        
+        self.__ui.labelActiveFlag.setText('N/A')
+        self.__ui.labelAliveFlag.setText(str(encoder['alive'])) 
+        self.__ui.labelFirmwareVersion.setText(str(encoder['firmware_version'])) 
+        self.__ui.labelHardwareVersion.setText(str(encoder['hardware_version'])) 
+        self.__ui.labelOTAFlag.setText(str(encoder['ota']))
+        self.__ui.labelROMSlot.setText(str(encoder['rom'])) 
+        
+        self.__ui.labelMAC.setText(str(encoder['module_id']))
+        self.__ui.labelRSSI.setText(str(encoder['rssi'])) 
+        self.__ui.labelSSID.setText(encoder['ssid']) 
+        
+    
 
 class IdeasXDeviceManager():
     def __init__(self, deviceClass, wsc): 
@@ -100,6 +128,7 @@ class IdeasXEncoder(QtWidgets.QWidget):
                                    'switch-adaptive-disabled.png']
                        }
         self.__deviceType = 'encoder'
+        self.__deviceName = None
         self.__wsc = wsc
         # Setup UI components
         super(IdeasXEncoder, self).__init__()
@@ -117,6 +146,13 @@ class IdeasXEncoder(QtWidgets.QWidget):
                                                                                  self.__wsc.keyEmulator.getAssignedKey(self.__strModuleID, self.__wsc.keyEmulator.switchOne)))
         self.__ui.buttonSwitchTwo.clicked.connect(lambda: self.openSwitchDialog(self.__wsc.keyEmulator.switchTwo,
                                                                                 self.__wsc.keyEmulator.getAssignedKey(self.__strModuleID, self.__wsc.keyEmulator.switchTwo)))
+        
+        
+    def openDeviceInformation(self):
+        dialog = IdeasXDeviceInformationDialog()
+        dialog.updateDisplay(self.__wsc.encoders[self.__strModuleID])
+        dialog.newDeviceName.connect(self.setDeviceAlisas)
+        dialog.exec()
     
     def openSwitchDialog(self, switch, assignedKey):
         dialog = IdeasXSwitchDialog(switch, assignedKey)
@@ -136,16 +172,20 @@ class IdeasXEncoder(QtWidgets.QWidget):
         shutdownAction = QtWidgets.QAction('Shutdown Encoder', self)
         shutdownAction.triggered.connect(lambda: self.__wsc.shutdownDevice(self.__strModuleID, None))
         testKeysAction = QtWidgets.QAction("Test Keys", self)
+        openInfoAction = QtWidgets.QAction("Device Information", self)
+
         testKeysAction.triggered.connect(self.testKeys)
+        openInfoAction.triggered.connect(self.openDeviceInformation)
         
-        
+                
         deviceMenu = QtWidgets.QMenu()
         #deviceMenu.addSection("General Actions")
         #deviceMenu.addAction("Pair Encoder with Actuator")
         #deviceMenu.addAction("Train Adaptive Switch")
         #deviceMenu.addAction("Configure Module")
-        deviceMenu.addSection("Encoder Commands")
+        #deviceMenu.addSection("Encoder Commands")
         deviceMenu.addAction(shutdownAction)
+        deviceMenu.addAction(openInfoAction)
         #deviceMenu.addAction("Restart Encoder")
         #deviceMenu.addAction("Update Firmware")
         deviceMenu.addSection("Engineering Tools")
@@ -170,13 +210,21 @@ class IdeasXEncoder(QtWidgets.QWidget):
         self.__strModuleID = self._parserTools.macToString(encoder['module_id'])
         self.__updateTime = encoder['time']
         
-        self.setModuleID(self.__strModuleID)
+        if self.__deviceName == None:
+            self.setModuleID(self.__strModuleID)
         self.setSOCIcon(self.__soc)
         self.setRSSIIcon(self.__rssi)
         self.setStatusTime(self.__updateTime)
 
     def setModuleID(self, strModuleID):      
         self.__ui.labelModuleID.setText(strModuleID)
+        
+    def setDeviceAlisas(self, label):
+        self.__deviceName = label
+        if label != None or label != "": 
+            self.__ui.labelModuleID.setText(label)
+        else: 
+            self.__ui.labelModuleID.setText(self.__strModuleID)
 
     def setSOCIcon(self, soc):
         if soc >= 75: 
@@ -269,9 +317,9 @@ class IdeasXMainWindow(QtWidgets.QMainWindow):
         
         self.restoreSettings()
         
-        self.__ui.buttonSettings.clicked.connect(self.updateBrokerSettings)
-        
-        
+        #self.__ui.buttonSettings.clicked.connect(self.updateBrokerSettings)
+        self.__ui.buttonBoxNetwork.button(QtWidgets.QDialogButtonBox.Apply).clicked.connect(self.updateBrokerSettings)
+        self.__ui.buttonBoxNetwork.button(QtWidgets.QDialogButtonBox.Cancel).clicked.connect(self.restoreBrokerSettings)
         
 
     def setEncoderLayout(self, layout):
@@ -342,6 +390,22 @@ class IdeasXMainWindow(QtWidgets.QMainWindow):
         settings.beginGroup('OTAServer')
         self.__OTAServer = settings.value('OTAServer', 'ideasx.duckdns.org')
         settings.endGroup()
+        
+    def restoreBrokerSettings(self):
+        settings = QtCore.QSettings(self.__org, self.__app)
+
+        settings.beginGroup("Broker")
+        self.__NetworkBroker = settings.value('NetworkBroker', 'ideasx.duckdns.org')
+        self.__NetworkPort = settings.value('NetworkPort', 1883)
+        self.__LocalBroker = settings.value('LocalBroker', '10.42.0.1')
+        self.__LocalPort = settings.value('LocalPort', 1883)
+        settings.endGroup()
+        
+        self.__ui.networkBroker.setText(self.__NetworkBroker)
+        self.__ui.networkPort.setText(str(self.__NetworkPort))
+        self.__ui.localBroker.setText(self.__LocalBroker)
+        self.__ui.localPort.setText(str(self.__LocalPort))
+        
         
     def closeEvent(self, event):
         self.saveSettings()

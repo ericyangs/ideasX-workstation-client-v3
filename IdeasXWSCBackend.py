@@ -119,8 +119,10 @@ class IdeasXWSCNetworkThread(QObject):
         if self.__debug: 
             if rc != 0: 
                 self.printError("Client disconnected and its a mystery why!")
+                self.networkStatus.emit("Uh No! WSC was disconnected!")
             else: 
                 self.printInfo("Client successfully disconnected.") 
+                self.networkStatus.emit("Uh No! WSC was disconnected!")
             self.printLine()   
             
     def mqtt_on_log(self, mqttc, backend_data, level, string):

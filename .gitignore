@@ -4,3 +4,7 @@ examples
 .project
 .pydevproject
 .settings
+.desktop 
+.sh
+.pyc
+

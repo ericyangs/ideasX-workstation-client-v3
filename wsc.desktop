@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=IdeasX Workstation Client
+Comment=
+Path=/home/tyler/ideasX-repositories/ideasX-workstation-client-v2/
+Exec=/home/tyler/ideasX-repositories/ideasX-workstation-client-v2/start.sh
+Icon=/home/tyler/ideasX-repositories/ideasX-workstation-client-v2/icon/logo/ideasx.png
+Terminal=false
+Type=Application  
