@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>452</width>
+    <width>522</width>
     <height>84</height>
    </rect>
   </property>
@@ -242,6 +242,22 @@
        <bool>true</bool>
       </property>
      </widget>
+     <widget class="QLabel" name="labelOTA">
+      <property name="geometry">
+       <rect>
+        <x>270</x>
+        <y>45</y>
+        <width>36</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>../icon/ota/updating.png</pixmap>
+      </property>
+     </widget>
      <zorder>labelDeviceType</zorder>
      <zorder>labelSignal</zorder>
      <zorder>labelBattery</zorder>
@@ -249,6 +265,7 @@
      <zorder>buttonSwitchTwo</zorder>
      <zorder>buttonSwitchAdaptive</zorder>
      <zorder>labelModuleID</zorder>
+     <zorder>labelOTA</zorder>
     </widget>
    </item>
    <item>

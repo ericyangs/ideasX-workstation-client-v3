@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='IdeasXMessages.proto',
   package='',
   syntax='proto2',
-  serialized_pb=_b('\n\x14IdeasXMessages.proto\"\xb1\x03\n\rHealthMessage\x12\x11\n\tmodule_id\x18\x01 \x02(\x0c\x12\r\n\x05\x61live\x18\x02 \x02(\x08\x12\x0e\n\x06\x61\x63tive\x18\x03 \x01(\x08\x12\n\n\x02lb\x18\x04 \x02(\x08\x12\x0b\n\x03ota\x18\x05 \x02(\x08\x12\x10\n\x08\x63harging\x18\x06 \x01(\x08\x12\x0b\n\x03soc\x18\x07 \x01(\x05\x12\r\n\x05vcell\x18\x08 \x02(\x05\x12\x1f\n\x03rom\x18\t \x02(\x0e\x32\x12.HealthMessage.Rom\x12\x18\n\x10\x66irmware_version\x18\n \x02(\x05\x12\x18\n\x10hardware_version\x18\x0b \x02(\x05\x12\x0c\n\x04rssi\x18\x0c \x02(\x05\x12\x0c\n\x04ssid\x18\r \x02(\t\x12\r\n\x05\x62ssid\x18\x0e \x01(\t\x12!\n\x04\x61uth\x18\x0f \x02(\x0e\x32\x13.HealthMessage.Auth\"#\n\x03Rom\x12\x08\n\x04ROM0\x10\x00\x12\x08\n\x04ROM1\x10\x01\x12\x08\n\x04ROM2\x10\x02\"_\n\x04\x41uth\x12\r\n\tAUTH_OPEN\x10\x00\x12\x0c\n\x08\x41UTH_WEP\x10\x01\x12\x10\n\x0c\x41UTH_WPA_PSK\x10\x02\x12\x11\n\rAUTH_WPA2_PSK\x10\x03\x12\x15\n\x11\x41UTH_WPA_WPA2_PSK\x10\x04\"2\n\x0b\x44\x61taMessage\x12\x0e\n\x06\x62utton\x18\x01 \x02(\x05\x12\x13\n\x0bimu_samples\x18\x02 \x01(\x0c\"\x96\x01\n\x0e\x43ommandMessage\x12(\n\x07\x63ommand\x18\x01 \x02(\x0e\x32\x17.CommandMessage.Command\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\"I\n\x07\x43ommand\x12\x0e\n\nOTA_UPDATE\x10\x00\x12\r\n\tSHUT_DOWN\x10\x01\x12\x0b\n\x07UART_TX\x10\x02\x12\x12\n\x0eLSM6DS3_CONFIG\x10\x03')
+  serialized_pb=_b('\n\x14IdeasXMessages.proto\"\xf7\x05\n\rHealthMessage\x12\x11\n\tmodule_id\x18\x01 \x02(\x0c\x12\r\n\x05\x61live\x18\x02 \x02(\x08\x12\x0e\n\x06\x61\x63tive\x18\x03 \x01(\x08\x12\n\n\x02lb\x18\x04 \x02(\x08\x12\x0b\n\x03ota\x18\x05 \x02(\x08\x12\x10\n\x08\x63harging\x18\x06 \x01(\x08\x12\x0b\n\x03soc\x18\x07 \x01(\x05\x12\r\n\x05vcell\x18\x08 \x02(\x05\x12\x1f\n\x03rom\x18\t \x02(\x0e\x32\x12.HealthMessage.Rom\x12\x18\n\x10\x66irmware_version\x18\n \x02(\x05\x12\x18\n\x10hardware_version\x18\x0b \x02(\x05\x12\x0c\n\x04rssi\x18\x0c \x02(\x05\x12\x0c\n\x04ssid\x18\r \x02(\t\x12\r\n\x05\x62ssid\x18\x0e \x01(\t\x12!\n\x04\x61uth\x18\x0f \x02(\x0e\x32\x13.HealthMessage.Auth\x12\x30\n\nimu_status\x18\x10 \x01(\x0e\x32\x1c.HealthMessage.Sensor_Status\x12/\n\tps_status\x18\x11 \x01(\x0e\x32\x1c.HealthMessage.Sensor_Status\x12/\n\tgg_status\x18\x12 \x01(\x0e\x32\x1c.HealthMessage.Sensor_Status\"#\n\x03Rom\x12\x08\n\x04ROM0\x10\x00\x12\x08\n\x04ROM1\x10\x01\x12\x08\n\x04ROM2\x10\x02\"_\n\x04\x41uth\x12\r\n\tAUTH_OPEN\x10\x00\x12\x0c\n\x08\x41UTH_WEP\x10\x01\x12\x10\n\x0c\x41UTH_WPA_PSK\x10\x02\x12\x11\n\rAUTH_WPA2_PSK\x10\x03\x12\x15\n\x11\x41UTH_WPA_WPA2_PSK\x10\x04\"\xaf\x01\n\rSensor_Status\x12\x14\n\x10SENSOR_STREAMING\x10\x00\x12\x1e\n\x1aSENSOR_COMMUNICATION_FAULT\x10\x01\x12\x15\n\x11SENSOR_FIFO_FAULT\x10\x02\x12\x13\n\x0fSENSOR_SHUTDOWN\x10\x03\x12\x1c\n\x18SENSOR_CALIBRATION_FAULT\x10\x04\x12\x1e\n\x1aSENSOR_CONFIGURATION_FAULT\x10\x05\"O\n\x0b\x44\x61taMessage\x12\x0e\n\x06\x62utton\x18\x01 \x02(\x05\x12\x16\n\x0esensor_samples\x18\x02 \x01(\x0c\x12\x18\n\x10\x63ommand_response\x18\x03 \x01(\x0c\"\xcb\x01\n\x0e\x43ommandMessage\x12(\n\x07\x63ommand\x18\x01 \x02(\x0e\x32\x17.CommandMessage.Command\x12\x0f\n\x07payload\x18\x02 \x01(\x0c\"~\n\x07\x43ommand\x12\x0e\n\nOTA_UPDATE\x10\x00\x12\r\n\tSHUT_DOWN\x10\x01\x12\x0b\n\x07UART_TX\x10\x02\x12\x0b\n\x07RESTART\x10\x03\x12\x12\n\x0eLSM6DS3_CONFIG\x10\x04\x12\x12\n\x0eLPH25DS_CONFIG\x10\x05\x12\x12\n\x0eMAX17XX_CONFIG\x10\x06')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -46,8 +46,8 @@ _HEALTHMESSAGE_ROM = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=326,
-  serialized_end=361,
+  serialized_start=474,
+  serialized_end=509,
 )
 _sym_db.RegisterEnumDescriptor(_HEALTHMESSAGE_ROM)
 
@@ -80,10 +80,48 @@ _HEALTHMESSAGE_AUTH = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=363,
-  serialized_end=458,
+  serialized_start=511,
+  serialized_end=606,
 )
 _sym_db.RegisterEnumDescriptor(_HEALTHMESSAGE_AUTH)
+
+_HEALTHMESSAGE_SENSOR_STATUS = _descriptor.EnumDescriptor(
+  name='Sensor_Status',
+  full_name='HealthMessage.Sensor_Status',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='SENSOR_STREAMING', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SENSOR_COMMUNICATION_FAULT', index=1, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SENSOR_FIFO_FAULT', index=2, number=2,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SENSOR_SHUTDOWN', index=3, number=3,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SENSOR_CALIBRATION_FAULT', index=4, number=4,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='SENSOR_CONFIGURATION_FAULT', index=5, number=5,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=609,
+  serialized_end=784,
+)
+_sym_db.RegisterEnumDescriptor(_HEALTHMESSAGE_SENSOR_STATUS)
 
 _COMMANDMESSAGE_COMMAND = _descriptor.EnumDescriptor(
   name='Command',
@@ -104,14 +142,26 @@ _COMMANDMESSAGE_COMMAND = _descriptor.EnumDescriptor(
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='LSM6DS3_CONFIG', index=3, number=3,
+      name='RESTART', index=3, number=3,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='LSM6DS3_CONFIG', index=4, number=4,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='LPH25DS_CONFIG', index=5, number=5,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='MAX17XX_CONFIG', index=6, number=6,
       options=None,
       type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=590,
-  serialized_end=663,
+  serialized_start=945,
+  serialized_end=1071,
 )
 _sym_db.RegisterEnumDescriptor(_COMMANDMESSAGE_COMMAND)
 
@@ -228,6 +278,27 @@ _HEALTHMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='imu_status', full_name='HealthMessage.imu_status', index=15,
+      number=16, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='ps_status', full_name='HealthMessage.ps_status', index=16,
+      number=17, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='gg_status', full_name='HealthMessage.gg_status', index=17,
+      number=18, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -235,6 +306,7 @@ _HEALTHMESSAGE = _descriptor.Descriptor(
   enum_types=[
     _HEALTHMESSAGE_ROM,
     _HEALTHMESSAGE_AUTH,
+    _HEALTHMESSAGE_SENSOR_STATUS,
   ],
   options=None,
   is_extendable=False,
@@ -243,7 +315,7 @@ _HEALTHMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=25,
-  serialized_end=458,
+  serialized_end=784,
 )
 
 
@@ -262,8 +334,15 @@ _DATAMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='imu_samples', full_name='DataMessage.imu_samples', index=1,
+      name='sensor_samples', full_name='DataMessage.sensor_samples', index=1,
       number=2, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='command_response', full_name='DataMessage.command_response', index=2,
+      number=3, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -280,8 +359,8 @@ _DATAMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=460,
-  serialized_end=510,
+  serialized_start=786,
+  serialized_end=865,
 )
 
 
@@ -319,14 +398,18 @@ _COMMANDMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=513,
-  serialized_end=663,
+  serialized_start=868,
+  serialized_end=1071,
 )
 
 _HEALTHMESSAGE.fields_by_name['rom'].enum_type = _HEALTHMESSAGE_ROM
 _HEALTHMESSAGE.fields_by_name['auth'].enum_type = _HEALTHMESSAGE_AUTH
+_HEALTHMESSAGE.fields_by_name['imu_status'].enum_type = _HEALTHMESSAGE_SENSOR_STATUS
+_HEALTHMESSAGE.fields_by_name['ps_status'].enum_type = _HEALTHMESSAGE_SENSOR_STATUS
+_HEALTHMESSAGE.fields_by_name['gg_status'].enum_type = _HEALTHMESSAGE_SENSOR_STATUS
 _HEALTHMESSAGE_ROM.containing_type = _HEALTHMESSAGE
 _HEALTHMESSAGE_AUTH.containing_type = _HEALTHMESSAGE
+_HEALTHMESSAGE_SENSOR_STATUS.containing_type = _HEALTHMESSAGE
 _COMMANDMESSAGE.fields_by_name['command'].enum_type = _COMMANDMESSAGE_COMMAND
 _COMMANDMESSAGE_COMMAND.containing_type = _COMMANDMESSAGE
 DESCRIPTOR.message_types_by_name['HealthMessage'] = _HEALTHMESSAGE

@@ -18,35 +18,23 @@ This class requires the following functionality:
 4) Parse IdeasX messages types given nothing more than a protofile 
 5) Subscribe to IdeasX devices 
 6) Invoke keystrokes if proper messages in a command is sent. 
-'''
-import sys
-import time
-import collections
-from ParsingTools import ParsingTools
 
-try:
-    import paho.mqtt.client as mqtt
-    import paho.mqtt.publish as mqtt_pub
-except ImportError:
-    # This part is only required to run the example from within the examples
-    # directory when the module itself is not installed.
-    #
-    # If you have the module installed, just use "import paho.mqtt.client"
-    import os
-    import inspect
-    cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"../src")))
-    if cmd_subfolder not in sys.path:
-        sys.path.insert(0, cmd_subfolder)
-    import paho.mqtt.client as mqtt
+TODO: Develop logger class for print statements 
+TODO: Fix subscribe / unsubscribe functionality
+TODO: Implement Queue which will send signal when subscription ACK is RX
+TODO: Expand exceptions to only parser not general actions
+'''
+import sys, time, collections
+from ParsingTools import ParsingTools
+from PyQt5.QtCore import QObject, pyqtSignal, QSettings
+import paho.mqtt.client as mqtt  
 
 try:     
-    from protocolbuffers import IdeasXMessages_pb2 as IdeasXMessages
+    import IdeasXMessages_pb2 as IdeasXMessages
 except ImportError: 
     print("The python classes for IdeasX are missing. Try running the Makefile in" +
             "ideasX-messages.")
 
-from PyQt5.QtCore import QObject, pyqtSignal, QSettings
-    
     
 class IdeasXWSCNetworkThread(QObject): 
     
@@ -70,7 +58,7 @@ class IdeasXWSCNetworkThread(QObject):
         self.__app = 'Workstation-Client'
         
         # MQTT Topics 
-        self.__DEVICETYPE = ["/encoder/+"]
+        self.__DEVICETYPE = ["/encoder/+", "/actuator/+"]
         self.__COMMANDTOPIC = "/command"
         self.__DATATOPIC = "/data"
         self.__HEALTHTOPIC = "/health"
@@ -79,11 +67,14 @@ class IdeasXWSCNetworkThread(QObject):
         self.encoders = {}
         self.subscribedEncoders = []
         
+        self.actuators = {}
+        self.subscribedActuators = []
+        
         # IdeasX Parsers
-        self._healthParser = IdeasXMessages.HealthMessage()
-        self._dataParser = IdeasXMessages.DataMessage()
-        self._commandParser = IdeasXMessages.CommandMessage()
-        self._parserTools = ParsingTools()
+        self.__healthParser = IdeasXMessages.HealthMessage()
+        self.__dataParser = IdeasXMessages.DataMessage()
+        self.__commandParser = IdeasXMessages.CommandMessage()
+        self.__parserTools = ParsingTools()
         self.keyEmulator = IdeasXKeyEmulator()
         
         # MQTT Client Object
@@ -93,7 +84,7 @@ class IdeasXWSCNetworkThread(QObject):
         for device in self.__DEVICETYPE:
             self._mqttc.message_callback_add(device+self.__HEALTHTOPIC, self.mqtt_on_health)
             self._mqttc.message_callback_add(device+self.__DATATOPIC, self.mqtt_on_data)
-            #self._mqttc.message_callback_add(device+self.__COMMANDTOPIC, self.mqtt_on_command)       
+            self._mqttc.message_callback_add(device+self.__COMMANDTOPIC, self.mqtt_on_command)       
         
         self._mqttc.on_connect = self.mqtt_on_connect
         self._mqttc.on_disconnect = self.mqtt_on_disconnect 
@@ -103,8 +94,9 @@ class IdeasXWSCNetworkThread(QObject):
         if self.__mqttDebug: 
             self._mqttc.on_log = self.mqtt_on_log 
 
-#------------------------------------------------------------------------------
-# callback functions
+    '''
+     MQTT Callback Functions
+    '''
 
     def mqtt_on_connect(self, mqttc, backend_data, flags, rc): 
         if rc == 0: 
@@ -133,9 +125,9 @@ class IdeasXWSCNetworkThread(QObject):
         self.printInfo("Data Message")
         self.printLine()
         try: 
-            self._dataParser.ParseFromString(msg.payload)
-            print("GPIO States: " + bin(self._dataParser.button))
-            self.keyEmulator.emulateKey( self._parserTools.getModuleIDfromTopic(msg.topic),self._dataParser.button)
+            self.__dataParser.ParseFromString(msg.payload)
+            print("GPIO States: " + bin(self.__dataParser.button))
+            self.keyEmulator.emulateKey( self.__parserTools.getModuleIDfromTopic(msg.topic),self.__dataParser.button)
         except Exception as ex: 
             self.printError("Failure to parse message")
             if self.__debug:
@@ -151,20 +143,20 @@ class IdeasXWSCNetworkThread(QObject):
         self.printInfo("Health Message")
         self.printLine()
         try: 
-            self._healthParser.ParseFromString(msg.payload)
-            macID = self._parserTools.macToString(self._healthParser.module_id)
+            self.__healthParser.ParseFromString(msg.payload)
+            macID = self.__parserTools.macToString(self.__healthParser.module_id)
             
-            if self._healthParser.alive:
+            if self.__healthParser.alive:
                 temp_list = []
-                for field in self._healthParser.ListFields():
-                    temp_list.append((field[0].name, field[1]))  
-                temp_list.append(('time', time.time()))          
-                self.encoders[macID] = collections.OrderedDict(temp_list)
-                self.encoderUpdate.emit(self.getDevices())
+                for field in self.__healthParser.ListFields():
+                    temp_list.append((field[0].name, field[1]))                     # copy health message fields in to list 
+                temp_list.append(('time', time.time()))                             # add time the message was RX to the end
+                self.encoders[macID] = collections.OrderedDict(temp_list)           # store into a ordered dictionary
+                self.encoderUpdate.emit(self.getDevices())                          # send signal to the GUI
             else:
                 try: 
-                    self.encoders.pop(macID)
-                    self.encoderUpdate.emit()
+                    self.encoders.pop(macID)                                        # if the encoder isn't alive attempt to remove from dictionary
+                    self.encoderUpdate.emit()                                       # send signal to GUI
                 except KeyError: 
                     self.printError("Encoder ID " +macID+" is not stored")
             
@@ -172,22 +164,22 @@ class IdeasXWSCNetworkThread(QObject):
                 for encoder, fields in zip(self.encoders.keys(), self.encoders.values()): 
                     print(str(encoder) +" : "+ str(fields))
                 self.printLine()
-        except: 
+        except Exception as e:
+            print(e) 
             self.printError("Error: Failure to parse message")
             if self.__debug:
                 print("Raw Message: %s" %msg.payload)
             self.printLine()
             try: 
-                self.encoders.pop(msg.topic.split('/')[2])
+                deviceID = msg.topic.split('/')[2]
+                self.encoders.pop(deviceID)
                 self.encoderUpdate.emit(self.getDevices())
+                self.deactivateEncoder(deviceID)
             except: 
                 print("This is a fucking joke anyway")
 
-
-        
-
-#----------------------------------------------thy--------------------------------
-# General API Calls 
+    def mqtt_on_command(self, mqttc, backend_data, msg):
+        pass
         
     def cmdStartWorkstationClient(self, ip="server.ideasX.tech", port=1883, keepAlive=60):     
         self.ip = ip 
@@ -235,7 +227,6 @@ class IdeasXWSCNetworkThread(QObject):
             self._mqttc.connect(self.ip, int(self.port), self.keepAlive)
             for device in self.__DEVICETYPE:
                 self._mqttc.subscribe(device + self.__HEALTHTOPIC, 0)
-                self._mqttc.subscribe(device + self.__DATATOPIC, 0)
             self._mqttc.loop_start() # start MQTT Client Thread 
         except: 
             self.printError("There was a fucking mistake here.")
@@ -268,9 +259,11 @@ class IdeasXWSCNetworkThread(QObject):
         deviceType = str 
         deviceMACAddress = str(MAC_ID)
         '''
-        if deviceMACAddress in self.encoders.keys():
+        if deviceMACAddress not in self.encoders.keys():
+            self.printError("Device " + deviceMACAddress + " is not currently in the IdeasX system.")
+        else:
             if deviceType == None: 
-                deviceDataTopic = self.__DEVICETYPE[0] + deviceMACAddress + self.__DATATOPIC
+                deviceDataTopic = "/encoder/" + deviceMACAddress + self.__DATATOPIC
             else: 
                 deviceDataTopic = deviceType + deviceMACAddress + self.__DATATOPIC
                  
@@ -278,9 +271,7 @@ class IdeasXWSCNetworkThread(QObject):
             self.subscribedEncoders.append(deviceMACAddress)
             if self.__debug: 
                 self.printInfo("Device " + deviceMACAddress + " data topic was subscribed")
-        else: 
-            self.printError("Device " + deviceMACAddress + " is not currently in the IdeasX system.")
-            
+                    
     def deactivateEncoder(self, deviceMACAddress, deviceType=None, forceAction=False):
         '''
         Unsubscribe from device's data topic and send deactive command if no other WSC are using device. 
@@ -298,17 +289,34 @@ class IdeasXWSCNetworkThread(QObject):
             if self.__debug: 
                 self.printInfo("Device " + deviceMACAddress + " data topic was unsubscribed")
         else: 
-            self.printError("Device " + deviceMACAddress + " is not currently in the IdeasX System")    
-
+            self.printError("Device " + deviceMACAddress + " is not currently in the IdeasX System")  
+            
+    def resetDevice(self, deviceMACAddress, deviceType=None):
+        self.__commandParser.command = self.__commandParser.RESTART
+        self._mqttc.publish(self.__DEVICETYPE[0][:-1] + deviceMACAddress + self.__COMMANDTOPIC,
+                            self.__commandParser.SerializeToString().decode('utf-8') ,
+                            qos=1,
+                            retain=False)       
+        self.networkUpdate.emit("Sent reset command to device " + deviceMACAddress)
 
     def shutdownDevice(self, deviceMACAddress, deviceType=None):
-        self._commandParser.command = self._commandParser.SHUT_DOWN
+        self.__commandParser.command = self.__commandParser.SHUT_DOWN
         self._mqttc.publish(self.__DEVICETYPE[0][:-1] + deviceMACAddress + self.__COMMANDTOPIC,
-                            self._commandParser.SerializeToString().decode('utf-8') ,
+                            self.__commandParser.SerializeToString().decode('utf-8') ,
                             qos=1,
                             retain=False)
-        self.networkUpdate.emit("Send shutdown command to Encoder " + deviceMACAddress)
-        self.printInfo("Send Shutdown Command to Encoder " + deviceMACAddress)
+        self.networkUpdate.emit("Sent shutdown command to device " + deviceMACAddress)
+        
+    def updateDevice(self, deviceMACAddress, deviceType=None):
+        self.__commandParser.command = self.__commandParser.OTA_UPDATE
+        self._mqttc.publish(self.__DEVICETYPE[0][:-1] + deviceMACAddress + self.__COMMANDTOPIC,
+                    self.__commandParser.SerializeToString().decode('utf-8') ,
+                    qos=1,
+                    retain=False)
+        self.networkUpdate.emit("Sent OTA update request to device " + deviceMACAddress)
+        
+    #def configureIMU(self, deviceMACAddress, deviceType=None):
+        
         
     def printLine(self):
         print('-'*70)
@@ -402,7 +410,7 @@ class IdeasXKeyEmulator():
         
         
 if __name__ == "__main__": 
-    Host = "ideasx.dnuckdns.org"
+    Host = "ideasx.duckdns.org"
 #    Host = "192.168.0.101"
 #    Host = "10.42.0.1"
     Port = 1883 
@@ -412,39 +420,44 @@ if __name__ == "__main__":
     cmdPayload = None; 
     cmdArg = None;
     cmdTest = False; 
+#     
+#     encodeId = '23:34'
+#     
+#     km = IdeasXKeyEmulator()
+#     
+#     km.activateEncoder(encodeId)
+#     km.emulateKey(encodeId, 1)
+#     time.sleep(0.1)
+#     km.emulateKey(encodeId, 0) 
+#     time.sleep(0.1)
+# 
+#     km.emulateKey(encodeId, 2)
+#     time.sleep(0.1)
+#     km.emulateKey(encodeId, 0)
+#     time.sleep(0.1)
+#     km.emulateKey(encodeId, 4)
+#     time.sleep(0.1)
+#     km.emulateKey(encodeId, 0)
     
-    encodeId = '23:34'
-    
-    km = IdeasXKeyEmulator()
-    
-    km.activateEncoder(encodeId)
-    km.emulateKey(encodeId, 1)
-    time.sleep(0.1)
-    km.emulateKey(encodeId, 0) 
-    time.sleep(0.1)
 
-    km.emulateKey(encodeId, 2)
-    time.sleep(0.1)
-    km.emulateKey(encodeId, 0)
-    time.sleep(0.1)
-    km.emulateKey(encodeId, 4)
-    time.sleep(0.1)
-    km.emulateKey(encodeId, 0)
-    
-
-    
-#     wsc = WorkstationClientClass()
-#         
-#     if cmdTest: 
-#         wsc.cmdStartWorkstationClient(Host, Port, KeepAlive)
-#     else: 
-#         wsc.guiStartWorkstationClient(Host, Port, KeepAlive)
-#         time.sleep(3)
-#         wsc.activateEncoder('18:fe:34:f1:f2:8d')
+       
+    wsc = IdeasXWSCNetworkThread()
+         
+    if cmdTest: 
+        wsc.cmdStartWorkstationClient(Host, Port, KeepAlive)
+    else: 
+        wsc.guiStartWorkstationClient(Host, Port, KeepAlive)
+        time.sleep(3)
+        
+        (result, mid) = wsc._mqttc.subscribe('/encoders/18:fe:34:d2:6f:68/health', qos=0)
+        print(result, mid)
+        (result, mid) = wsc._mqttc.subscribe('/encoders/18:fe:34:d2:6f:68/health', qos=0)
+        print(result, mid)
+        wsc.activateEncoder('18:fe:34:d2:6f:68')
 #         print(wsc.subscribedEncoders)
 #         time.sleep(2)
-#         wsc.deactivateEncoder('18:fe:34:f1:f2:8d')
+#         wsc.deactivateEncoder('18:fe:34:d2:6f:68')
 #         print(wsc.subscribedEncoders)
-#         time.sleep(10)
-#         wsc.killWSC()
+        time.sleep(10)
+        wsc.killWSC()
         

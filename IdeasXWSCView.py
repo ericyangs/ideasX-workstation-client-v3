@@ -1,14 +1,26 @@
-#!/usr/bin/env python`
+
+'''
+IdeasXWSCView.py 
+
+TODO: Fix activate / deactivate functionality [done]
+TODO: Fix subscribe / unsubscribe functionality in backend [done]
+TODO: Develop queue message thinger for sub unsub with feedback from backend
+
+TODO: Develop structure for creating alias for device
+TODO: Develop structure for saving information into backend
+
+'''
 import sys
 import time
 import sip
 from PyQt5 import QtCore, QtGui, QtWidgets
-from mainwindow2 import Ui_MainWindow
-from ideasxdevice import Ui_IdeasXDevice
+from pyqt.mainwindow2 import Ui_MainWindow
+from pyqt.ideasxdevice import Ui_IdeasXDevice
 from IdeasXWSCBackend import IdeasXWSCNetworkThread
+from pyqt.encoderconfigurationdialog import Ui_SwitchConfigDialog
+from pyqt.devicedialog import Ui_Dialog
 from ParsingTools import ParsingTools
-from encoderconfigurationdialog import Ui_SwitchConfigDialog
-from devicedialog import Ui_Dialog
+
 
 class IdeasXSwitchDialog(QtWidgets.QDialog):
     
@@ -97,39 +109,42 @@ class IdeasXDeviceManager():
 
 class IdeasXEncoder(QtWidgets.QWidget):
     sendCommand = QtCore.pyqtSignal(['QString'], name='sendCommand')
+    activateDevice = QtCore.pyqtSignal(['QString', 'QString'], name='deactivateDevice')
+    deactivateDevice = QtCore.pyqtSignal(['QString', 'QString'], name='activateDevice')
+    __pathToIcon = {'network': './icon/network/', 
+                     'battery': './icon/battery/', 
+                     'battery_charging': './icon/battery/',
+                     'switch': './icon/switch/'
+                    }
+    __icon = {'network': ['network-wireless-offline-symbolic.png',
+                               'network-wireless-signal-weak-symbolic.png',
+                               'network-wireless-signal-ok-symbolic.png',
+                               'network-wireless-signal-good-symbolic.png',
+                               'network-wireless-signal-excellent-symbolic.png'],
+                    'battery': ['battery-empty-symbolic.png', 
+                                'battery-caution-symbolic.png',
+                                'battery-low-symbolic.png', 
+                                'battery-good-symbolic.png',
+                                'battery-full-symbolic.png'],
+                    'battery_charging': ['battery-empty-charging-symbolic.png', 
+                                         'battery-caution-charging-symbolic.png', 
+                                         'battery-low-charging-symbolic.png', 
+                                         'battery-good-charging-symbolic.png', 
+                                         'battery-full-charged-symbolic.png'],
+                    'switch': ['switch-one-enabled.png', 
+                               'switch-one-disabled.png', 
+                               'switch-two-enabled.png', 
+                               'switch-two-disabled.png', 
+                               'switch-adaptive-enabled.png', 
+                               'switch-adaptive-disabled.png']
+                   }
+    __deviceType = '/encoder/'
+
     
     def __init__(self, encoder, wsc): 
-        # This should become a static variable for the class
-        self.__pathToIcon = {'network': './icon/network/', 
-                             'battery': './icon/battery/', 
-                             'battery_charging': './icon/battery/',
-                             'switch': './icon/switch/'
-                            }
-        self.__icon = {'network': ['network-wireless-offline-symbolic.png',
-                                   'network-wireless-signal-weak-symbolic.png',
-                                   'network-wireless-signal-ok-symbolic.png',
-                                   'network-wireless-signal-good-symbolic.png',
-                                   'network-wireless-signal-excellent-symbolic.png'],
-                        'battery': ['battery-empty-symbolic.png', 
-                                    'battery-caution-symbolic.png',
-                                    'battery-low-symbolic.png', 
-                                    'battery-good-symbolic.png',
-                                    'battery-full-symbolic.png'],
-                        'battery_charging': ['battery-empty-charging-symbolic.png', 
-                                             'battery-caution-charging-symbolic.png', 
-                                             'battery-low-charging-symbolic.png', 
-                                             'battery-good-charging-symbolic.png', 
-                                             'battery-full-charged-symbolic.png'],
-                        'switch': ['switch-one-enabled.png', 
-                                   'switch-one-disabled.png', 
-                                   'switch-two-enabled.png', 
-                                   'switch-two-disabled.png', 
-                                   'switch-adaptive-enabled.png', 
-                                   'switch-adaptive-disabled.png']
-                       }
-        self.__deviceType = 'encoder'
         self.__deviceName = None
         self.__wsc = wsc
+        
         # Setup UI components
         super(IdeasXEncoder, self).__init__()
         self.__ui = Ui_IdeasXDevice()
@@ -138,7 +153,6 @@ class IdeasXEncoder(QtWidgets.QWidget):
         self.updateDevice(encoder)        
         self.updateSwitchIcons()
         
-
         # Setup Signals
         self.setupMenu()
         self.__ui.buttonActivate.clicked.connect(self.activateEncoder)
@@ -146,7 +160,8 @@ class IdeasXEncoder(QtWidgets.QWidget):
                                                                                  self.__wsc.keyEmulator.getAssignedKey(self.__strModuleID, self.__wsc.keyEmulator.switchOne)))
         self.__ui.buttonSwitchTwo.clicked.connect(lambda: self.openSwitchDialog(self.__wsc.keyEmulator.switchTwo,
                                                                                 self.__wsc.keyEmulator.getAssignedKey(self.__strModuleID, self.__wsc.keyEmulator.switchTwo)))
-        
+        self.activateDevice.connect(self.__wsc.activateEncoder)
+        self.deactivateDevice.connect(self.__wsc.deactivateEncoder)
         
     def openDeviceInformation(self):
         dialog = IdeasXDeviceInformationDialog()
@@ -170,26 +185,25 @@ class IdeasXEncoder(QtWidgets.QWidget):
               
     def setupMenu(self):
         shutdownAction = QtWidgets.QAction('Shutdown Encoder', self)
-        shutdownAction.triggered.connect(lambda: self.__wsc.shutdownDevice(self.__strModuleID, None))
+        resetAction = QtWidgets.QAction("Reset Encoder", self)
         testKeysAction = QtWidgets.QAction("Test Keys", self)
         openInfoAction = QtWidgets.QAction("Device Information", self)
+        startOTAAction = QtWidgets.QAction("OTA Update", self)
 
         testKeysAction.triggered.connect(self.testKeys)
         openInfoAction.triggered.connect(self.openDeviceInformation)
-        
+        startOTAAction.triggered.connect(lambda: self.__wsc.updateDevice(self.__strModuleID, None))
+        shutdownAction.triggered.connect(lambda: self.__wsc.shutdownDevice(self.__strModuleID, None))
+        resetAction.triggered.connect(lambda: self.__wsc.resetDevice(self.__strModuleID, None))
+
                 
         deviceMenu = QtWidgets.QMenu()
-        #deviceMenu.addSection("General Actions")
-        #deviceMenu.addAction("Pair Encoder with Actuator")
-        #deviceMenu.addAction("Train Adaptive Switch")
-        #deviceMenu.addAction("Configure Module")
-        #deviceMenu.addSection("Encoder Commands")
         deviceMenu.addAction(shutdownAction)
+        deviceMenu.addAction(resetAction)
         deviceMenu.addAction(openInfoAction)
-        #deviceMenu.addAction("Restart Encoder")
-        #deviceMenu.addAction("Update Firmware")
         deviceMenu.addSection("Engineering Tools")
         deviceMenu.addAction(testKeysAction)
+        deviceMenu.addAction(startOTAAction)
         
         self.__ui.buttonMenu.setPopupMode(2)
         self.__ui.buttonMenu.setMenu(deviceMenu)
@@ -198,9 +212,11 @@ class IdeasXEncoder(QtWidgets.QWidget):
     def activateEncoder(self):
         if self.__ui.buttonActivate.text() == "Activate":
             print("Activating Encoder: " + self.__ui.labelModuleID.text())
+            self.activateDevice.emit(self.__strModuleID, self.__deviceType)
             self.__ui.buttonActivate.setText("Deactivate")
         else: 
             print("Deactivating Encoder: " + self.__ui.labelModuleID.text())
+            self.deactivateDevice.emit(self.__strModuleID, self.__deviceType)
             self.__ui.buttonActivate.setText("Activate")
         
     def updateDevice(self, encoder):      
@@ -209,12 +225,20 @@ class IdeasXEncoder(QtWidgets.QWidget):
         self.__vcell = self._parserTools.calculateVCell(encoder['vcell'])
         self.__strModuleID = self._parserTools.macToString(encoder['module_id'])
         self.__updateTime = encoder['time']
+        self.__ota = encoder['ota']
         
         if self.__deviceName == None:
             self.setModuleID(self.__strModuleID)
         self.setSOCIcon(self.__soc)
         self.setRSSIIcon(self.__rssi)
         self.setStatusTime(self.__updateTime)
+        self.setOTAIcon(self.__ota)
+        
+    def setOTAIcon(self, ota):
+        if ota: 
+            self.__ui.labelOTA.show()
+        else: 
+            self.__ui.labelOTA.hide()
 
     def setModuleID(self, strModuleID):      
         self.__ui.labelModuleID.setText(strModuleID)
@@ -242,9 +266,8 @@ class IdeasXEncoder(QtWidgets.QWidget):
         self.__ui.labelBattery.setToolTip(str(soc) + "%")
         
     def setStatusTime(self, updateTime):
-        # set last update time or date
-        lastUpdate = time.ctime(updateTime).split(" ")
-        currentTime = time.ctime().split(" ")
+        lastUpdate = time.ctime(updateTime).replace("  ", " ").split(" ")
+        currentTime = time.ctime().replace("  ", " ").split(" ")
         if currentTime[1] != lastUpdate[1] or currentTime[2] != lastUpdate[2] or currentTime[4] != lastUpdate[4]: 
             lastUpdate = lastUpdate[1] + " " + lastUpdate[2] + " " + lastUpdate[4]
         else: 
@@ -252,7 +275,6 @@ class IdeasXEncoder(QtWidgets.QWidget):
         self.__ui.labelStatus.setText("Last Update: " + lastUpdate)
         
     def setRSSIIcon(self, rssi): 
-        # set rssi icon
         if rssi >= -50: 
             rssiIcon = 4
         elif rssi >= -60 and rssi < -50: 
@@ -294,7 +316,6 @@ class IdeasXEncoder(QtWidgets.QWidget):
             self.__wsc.keyEmulator.emulateKey(self.__strModuleID, payload)
             time.sleep(0.1)
 
-    
 
 class IdeasXMainWindow(QtWidgets.QMainWindow):
     def __init__(self, wsc):

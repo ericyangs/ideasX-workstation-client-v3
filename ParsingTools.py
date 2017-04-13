@@ -4,7 +4,7 @@ class ParsingTools():
         '''
         mac_str = ""
         for byte in mac_bytes: 
-            mac_str = mac_str + format(byte, 'x') + ':'
+            mac_str = mac_str + format(byte, '02x') + ':'
         return mac_str[:-1].format('utf-8')
             
     def calculateVCell(self, raw_Vcell):
@@ -15,14 +15,14 @@ class ParsingTools():
     
     def getModuleIDfromTopic(self, topic):
         return topic.split('/')[2]
-    
+        
 class FieldGenerator():
     def generateMACID(self):
         import numpy as np
         macID = np.random.randint(255, size=5)
         macStr = ""
         for val in macID: 
-            macStr = macStr+ format(val, 'x') + ":" 
+            macStr = macStr + format(val, 'x') + ":" 
         return macStr[:-1]
 
     def generateRSSI(self):
