@@ -6,12 +6,18 @@ The purpose of this application is to provide an interface for therapists and ca
     + Paho-MQTT (Network Communication)
     + PySerial  (Configuration of IdeasX device over USB)
 
-The software is split into a few different files for sanity. 
+The Paho-MQTT mqttc module was modified (in a total hack-ish method). The mqttc does not provde the option to set a timeout for opening a socket. Therefore, if the user enters an incorrect IP / Port, the backend code (wsc_client.py) will hang in-definitly. Therefore, the following line was addded to client.py 
+``` 
+socket.setDefaultTimeout(1)
+```
 
-**wsc_client.py** contains majority of the networking code for handling ideasX devices. 
+## List of Brokers 
+The following link lists a number of publically available - free - brokers to support IdeasX. 
+[https://github.com/mqtt/mqtt.github.io/wiki/public_brokers]
 
-**wsc_device.py** contains classes for each device in the IdeasX system to decode data recieved by the wsc\_client.py networking thread and commands which can be send to each device. 
+## Encoder Details / Notes 
 
-**wsc_tools.py** contains helper tools created wsc\_io.py file (normally dumb things like converting a byte value from the wsc\_client into a percentage etc.)
+### Switches 
 
-**wsc_ui.py** contains the UI for the appication
+0b110000000000001101100000001 10100
+

@@ -1,10 +1,10 @@
 import sys, time, collections
-from PyQt5.QtCore import QObject, pyqtSignal, QSettings
+from PyQt5.QtCore import QObject, pyqtSignal, QSettings, QTimer
 import paho.mqtt.client as mqtt
 import logging
 import wsc_device
 import wsc_device_encoder
-from wsc_tools import ParsingTools
+from wsc_tools import ParsingTools, EncoderConfig
 
 #FORMAT = '%(asctime)-15s'
 logging.basicConfig( level=logging.DEBUG)
@@ -41,6 +41,7 @@ class WSC_Client(QObject):
 
         self._mqttc.on_connect = self.wsc_on_connect
         self._mqttc.on_disconnect = self.wsc_on_disconnect
+        self.encoderConfig = EncoderConfig()
 
         if self.__mqttDebug:
             self._mqttc.on_log = self.mqtt_on_log
@@ -88,6 +89,7 @@ class WSC_Client(QObject):
             self.port = port
 
         try:
+            self._mqttc.reconnect_delay_set(1,120)
             self._mqttc.connect(self.ip, int(self.port), self.keepAlive)
             self.__encoderManager.setupMQTT()
             if gui: 
@@ -102,6 +104,11 @@ class WSC_Client(QObject):
              log.critical(e)   
              self.networkStatus.emit("Oh-no! Broker settings are incorrect or there is a network failure")
              #sys.exit(1)
+
+    def connectionTimeout(self):
+        self.killWSC() 
+        self.networkUpdate.emit("Oh-no! Broker settings are incorrect or there is a network failure")
+        log.info("connection timeout")
 
     def restartWSC(self):
         self.killWSC()

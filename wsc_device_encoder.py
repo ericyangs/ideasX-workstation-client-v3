@@ -28,6 +28,7 @@ class Encoder():
     UART_TX_COMMAND_TOPIC = "uart"
     COMMAND_RETAIN = False 
     COMMAND_QOS = 1 
+    DATA_BUTTON_QOS = 0
 
     def __init__(self, device_id, mqttc):
         self.__device_id  = device_id
@@ -67,10 +68,17 @@ class Encoder():
                            'shutdown':  self.shutdown}
         self.__mqttc = mqttc
         self.switchOne = Switch()
+        self.switchOne.setConfig("1")
         self.switchTwo = Switch()
+        self.switchTwo.setConfig("2")
         self.switchAdaptive = Switch()
         self.RAW_COMMAND_TOPIC = "encoder/" + device_id + "/command/"
+        self.RAW_DATA_TOPIC = "encoder/" + device_id + "/data/"
+        self.__previous_button_payload = 0b0
 
+
+    def getDeviceID(self):
+        return self.__device_id
 
     def updateField(self, field, value):
         if field in self.__fields.keys():
@@ -95,17 +103,62 @@ class Encoder():
     def getField(self, field):
         return self.__fields[field]
 
+    def activate(self):
+        self.__mqttc.subscribe(self.RAW_DATA_TOPIC + "button", qos=self.DATA_BUTTON_QOS)
+        self.__mqttc.message_callback_add(self.RAW_DATA_TOPIC + "button", self.data_button_cb)
+        log.info("activated device" + self.__device_id)
+
+    def deactivate(self):
+        self.__mqttc.unsubscribe(self.RAW_DATA_TOPIC + "button")
+        log.info("deactivated device" + self.__device_id)
+
+
+    # This needs to be modified for the following: 
+    # 1. only activate switch if there is change....i.e. don't activating switch 1 again which switch 1 is already
+    #    depressed and switch 2 is pressed 
+    # 2. don't be pushing mad buttons because shit is broken 
+
+    def data_button_cb(self, mqttc, backend_data, msg):
+        topic = msg.topic
+        payload = int.from_bytes(msg.payload, 'little') 
+        switchTwo = 0b100
+        switchOne = 0b100000
+    
+
+        # press / release key
+        if ((payload & switchOne) ^ (self.__previous_button_payload & switchOne)): 
+            print("switchOne Change")
+            if (payload & switchOne): 
+                self.switchOne.releaseKey() 
+            else: 
+                print("Activated!")
+                self.switchOne.pressKey() 
+
+        if ((payload & switchTwo) ^ (self.__previous_button_payload & switchTwo)):
+            print("switchTwo Change")
+            if (payload & switchTwo):
+                self.switchTwo.releaseKey() 
+            else: 
+                print("Activated!")
+                self.switchTwo.pressKey()
+
+        self.__previous_button_payload = payload 
+        log.debug("encoder " + self.__device_id + " button payload: " + bin(payload))
+
     def update(self): 
-        self.__mqttc.publish(self.RAW_COMMAND_TOPIC+self.OTA_COMMAND_TOPIC, b'1', qos=1, retain=False)
+        self.__mqttc.publish(self.RAW_COMMAND_TOPIC+self.OTA_COMMAND_TOPIC, b'1', qos=self.COMMAND_QOS, retain=False)
         log.info("sent OTA command")
 
     def restart(self):
-        self.__mqttc.publish(self.RAW_COMMAND_TOPIC+self.RESTART_COMMAND_TOPIC, b'1', qos=1, retain=False)
+        self.__mqttc.publish(self.RAW_COMMAND_TOPIC+self.RESTART_COMMAND_TOPIC, b'1', qos=self.COMMAND_QOS, retain=False)
         log.info("sent restart command")  
 
     def shutdown(self): 
-        self.__mqttc.publish(self.RAW_COMMAND_TOPIC+self.SHUTDOWN_COMMAND_TOPIC, b'1', qos=1, retain=False)
+        self.__mqttc.publish(self.RAW_COMMAND_TOPIC+self.SHUTDOWN_COMMAND_TOPIC, b'1', qos=self.COMMAND_QOS, retain=False)
         log.info("sent shutdown command")  
+    
+    def locate(self):
+        self.__mqttc.publish(self.RAW_COMMAND_TOPIC+self.LOCATE_COMMAND_TOPIC, b'1', qos=self.COMMAND_QOS, retain=False)
 
 class EncoderUI(QtWidgets.QWidget):
     sendCommand = QtCore.pyqtSignal(['QString'], name='sendCommand')
@@ -144,6 +197,10 @@ class EncoderUI(QtWidgets.QWidget):
     def __init__(self, encoder):
         self.__deviceName = None
         self.__encoder = encoder
+        self.__org = 'IdeasX'
+        self.__app = 'Workstation-Client'
+
+        self.restoreSettings()
 
         # Setup UI components
         super(EncoderUI, self).__init__()
@@ -154,16 +211,32 @@ class EncoderUI(QtWidgets.QWidget):
 
         # Setup Signals
         self.setupMenu()
-        #self.__ui.buttonActivate.clicked.connect(self.activateEncoder)
+        self.__ui.buttonActivate.clicked.connect(self.activateEncoder)
         self.__ui.buttonSwitchOne.clicked.connect(lambda: self.openSwitchDialog(self.__encoder.switchOne))
         self.__ui.buttonSwitchTwo.clicked.connect(lambda: self.openSwitchDialog(self.__encoder.switchTwo))
         #self.activateDevice.connect(self.__wsc.activateEncoder)
         #self.deactivateDevice.connect(self.__wsc.deactivateEncoder)
 
+    def saveSettings(self, device_name):
+        settings = QtCore.QSettings(self.__org, self.__app)
+        settings.beginGroup(self.__encoder.getDeviceID())
+        settings.setValue("name", device_name)
+        settings.setValue("type", "encoder")
+        settings.endGroup()
+        self.setDeviceAlisas(device_name)
+
+    def restoreSettings(self):
+        settings = QtCore.QSettings(self.__org, self.__app)
+        settings = QtCore.QSettings(self.__org, self.__app)
+        settings.beginGroup(self.__encoder.getDeviceID())
+        self.__deviceName = settings.value("name", self.__encoder.getDeviceID())
+        settings.endGroup()
+
+
     def openDeviceInformation(self):
         dialog = InfoUI()
         dialog.updateDisplay(self.__encoder.listFields())
-        dialog.newDeviceName.connect(self.setDeviceAlisas)
+        dialog.newDeviceName.connect(self.saveSettings)
         dialog.exec()
 
     def openSwitchDialog(self, switch):
@@ -211,12 +284,10 @@ class EncoderUI(QtWidgets.QWidget):
 
     def activateEncoder(self):
         if self.__ui.buttonActivate.text() == "Activate":
-            log.info("Activating Encoder: " + self.__ui.labelModuleID.text())
-            self.activateDevice.emit(self.__strModuleID, self.__deviceType)
+            self.__encoder.activate()
             self.__ui.buttonActivate.setText("Deactivate")
         else:
-            log.info("Deactivating Encoder: " + self.__ui.labelModuleID.text())
-            self.deactivateDevice.emit(self.__strModuleID, self.__deviceType)
+            self.__encoder.deactivate()
             self.__ui.buttonActivate.setText("Activate")
 
     def updateDevice(self, encoder):
@@ -230,6 +301,8 @@ class EncoderUI(QtWidgets.QWidget):
 
         if self.__deviceName == None:
             self.setModuleID(self.__strModuleID)
+        else: 
+            self.setDeviceAlisas(self.__deviceName)
         self.setSOCIcon(self.__soc)
         self.setRSSIIcon(self.__rssi)
         self.setStatusTime(self.__updateTime)
