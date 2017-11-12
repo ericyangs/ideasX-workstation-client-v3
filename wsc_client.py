@@ -113,7 +113,7 @@ class WSC_Client(QObject):
     def restartWSC(self):
         self.killWSC()
         self.networkUpdate.emit("Restarting WSC...")
-        self.StartWorkstationClient()
+        self.StartWorkstationClient(gui=True)
 
     def killWSC(self):
         self._mqttc.loop_stop()

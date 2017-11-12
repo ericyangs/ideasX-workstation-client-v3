@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # IdeasX Supervisor 
 
 The purpose of this application is to provide an interface for therapists and care takers to configure and maintain devices in the IdeasX system. The application is cross platform and written in python3.X and PyQt (Qt5). The application currently has the following dependencies: 
@@ -22,20 +21,3 @@ The following link lists a number of publically available - free - brokers to su
 
 0b110000000000001101100000001 10100
 
-=======
-## Workstation Client V2
-
-This repository holds the first edition of the cross-platform supervisor software
-used for IdeasX.
-
-This software is written using the following:
-+ Python3
-+ PyQt5
-+ Protocol Buffers
-
-The following packages are required to run:
-+ paho-mqtt
-+ probably more...
-
-Author(s): Tyler Berezowsky
->>>>>>> master

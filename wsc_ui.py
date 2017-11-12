@@ -231,7 +231,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
+    app = QtWidgets.QApplication(['IdeasX Supervisor'])
     app.setWindowIcon(QtGui.QIcon('icon/logo/ideasx.png'))
     wsc = WSC_Client()
     mainWindow = MainWindow(wsc)
