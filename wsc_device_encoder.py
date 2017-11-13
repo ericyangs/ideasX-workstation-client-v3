@@ -32,6 +32,7 @@ class Encoder():
 
     def __init__(self, device_id, mqttc):
         self.__device_id  = device_id
+        self.__label_default = b""
         self.__hw_version_default =   b"0,0"
         self.__fw_version_default =   b"0,0"
         self.__alive_default  =    b"0"
@@ -48,6 +49,7 @@ class Encoder():
         self.__auth_default    =   b"0"
         self.__time_default    =   time.time()
         self.__fields = {"device_id":   self.__device_id,
+                         "label":       self.__label_default,
                          "hw_ver":      self.__hw_version_default,
                          "fw_ver":      self.__fw_version_default,
                          "alive":       self.__alive_default,

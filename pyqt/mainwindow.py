@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './qt/mainwindow.ui'
+# Form implementation generated from reading ui file 'qt/mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.6
 #
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(525, 753)
+        MainWindow.resize(525, 789)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -60,7 +60,7 @@ class Ui_MainWindow(object):
         self.scrollEncoder.setWidgetResizable(True)
         self.scrollEncoder.setObjectName("scrollEncoder")
         self.contentEncoder = QtWidgets.QWidget()
-        self.contentEncoder.setGeometry(QtCore.QRect(0, 0, 456, 658))
+        self.contentEncoder.setGeometry(QtCore.QRect(0, 0, 456, 694))
         self.contentEncoder.setObjectName("contentEncoder")
         self.scrollEncoder.setWidget(self.contentEncoder)
         self.gridLayout.addWidget(self.scrollEncoder, 0, 0, 1, 3)
@@ -140,39 +140,30 @@ class Ui_MainWindow(object):
         self.groupDeviceSettings.setObjectName("groupDeviceSettings")
         self.formLayout_2 = QtWidgets.QFormLayout(self.groupDeviceSettings)
         self.formLayout_2.setObjectName("formLayout_2")
-        self.labelAPSelector = QtWidgets.QLabel(self.groupDeviceSettings)
-        self.labelAPSelector.setObjectName("labelAPSelector")
-        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.labelAPSelector)
-        self.selectAP = QtWidgets.QSpinBox(self.groupDeviceSettings)
-        self.selectAP.setSuffix("")
-        self.selectAP.setMinimum(1)
-        self.selectAP.setMaximum(5)
-        self.selectAP.setObjectName("selectAP")
-        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.selectAP)
         self.labelSSID = QtWidgets.QLabel(self.groupDeviceSettings)
         self.labelSSID.setObjectName("labelSSID")
-        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.labelSSID)
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.labelSSID)
         self.wifiSSID = QtWidgets.QLineEdit(self.groupDeviceSettings)
         self.wifiSSID.setClearButtonEnabled(True)
         self.wifiSSID.setObjectName("wifiSSID")
-        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.wifiSSID)
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.wifiSSID)
         self.labelPassword = QtWidgets.QLabel(self.groupDeviceSettings)
         self.labelPassword.setObjectName("labelPassword")
-        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.labelPassword)
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.labelPassword)
         self.wifiPassword = QtWidgets.QLineEdit(self.groupDeviceSettings)
         self.wifiPassword.setClearButtonEnabled(True)
         self.wifiPassword.setObjectName("wifiPassword")
-        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.wifiPassword)
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.wifiPassword)
         self.labelPort = QtWidgets.QLabel(self.groupDeviceSettings)
         self.labelPort.setObjectName("labelPort")
-        self.formLayout_2.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.labelPort)
+        self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.labelPort)
         self.selectPort = QtWidgets.QComboBox(self.groupDeviceSettings)
         self.selectPort.setObjectName("selectPort")
-        self.formLayout_2.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.selectPort)
+        self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.selectPort)
         self.buttonRefreshPorts = QtWidgets.QToolButton(self.groupDeviceSettings)
         self.buttonRefreshPorts.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.buttonRefreshPorts.setObjectName("buttonRefreshPorts")
-        self.formLayout_2.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.buttonRefreshPorts)
+        self.formLayout_2.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.buttonRefreshPorts)
         self.verticalLayout_2.addWidget(self.groupDeviceSettings)
         self.buttonBoxDevice = QtWidgets.QDialogButtonBox(self.tabSetting)
         self.buttonBoxDevice.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Save)
@@ -241,9 +232,7 @@ class Ui_MainWindow(object):
         self.labelOTA.setText(_translate("MainWindow", "OTA Server:"))
         self.otaServer.setPlaceholderText(_translate("MainWindow", "URL or IP"))
         self.lineEdit_2.setPlaceholderText(_translate("MainWindow", "Port"))
-        self.groupDeviceSettings.setTitle(_translate("MainWindow", "Device Settings"))
-        self.labelAPSelector.setText(_translate("MainWindow", "Wi-Fi Access Point:"))
-        self.selectAP.setPrefix(_translate("MainWindow", "Access Point "))
+        self.groupDeviceSettings.setTitle(_translate("MainWindow", "Device Wi-Fi Settings"))
         self.labelSSID.setText(_translate("MainWindow", "SSID:"))
         self.labelPassword.setText(_translate("MainWindow", "Password:"))
         self.labelPort.setText(_translate("MainWindow", "Port:"))
@@ -256,14 +245,4 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Global Command: "))
         self.pushButton_2.setText(_translate("MainWindow", "Send Command"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSetting), _translate("MainWindow", "Settings"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
 

@@ -60,10 +60,6 @@ class EncoderConfig():
         time.sleep(0.5)
         self.__ser.write(clear_str)
         time.sleep(0.5)
-        factory_reset_str = "\n\rAT+FRST\n\r"
-        factory_reset_str = factory_reset_str.encode('utf-8')
-        self.__ser.write(factory_reset_str)
-        time.sleep(0.5)
         for creds in aps: 
             self.setWifiAP(creds[0], creds[1])
             time.sleep(1)
