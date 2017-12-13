@@ -36,6 +36,17 @@ class EncoderConfig():
         self.__ser.setDTR(value=0)
         time.sleep(0.5)
 
+
+    def swReset(self):
+        self.connect(port)
+        clear_str = "\n\r"
+        clear_str = clear_str.encode('utf-8')
+        time.sleep(0.5)
+        self.__ser.write(clear_str)
+        time.sleep(0.5)
+
+
+
     def getPort(self): 
         return self.__port
 
@@ -54,25 +65,22 @@ class EncoderConfig():
         
     
     def setWifiAPs(self, aps, port): 
+        MAX_APS = 1
         self.connect(port)
         clear_str = "\n\r"
         clear_str = clear_str.encode('utf-8')
         time.sleep(0.5)
         self.__ser.write(clear_str)
         time.sleep(0.5)
-        for creds in aps: 
-            self.setWifiAP(creds[0], creds[1])
-            time.sleep(1)
-
+        self.setWifiAP(aps[0][0],aps[0][1])
+        time.sleep(1)
+        # for creds in aps[MAX_APS-1]: 
+        #     self.setWifiAP(creds[0], creds[1])
+        #     time.sleep(1)
         self.__ser.write(clear_str)
         time.sleep(0.5)
         ## do hard reset 
         self.reset()
-        
-        ##reset_str = "\n\rAT+RST\r\n"
-        ##reset_str = reset_str.encode('utf-8')
-        ##self.__ser.write(reset_str)
-        
         self.__ser.close()
 
     def setWifiAP(self, ssid, password=None):

@@ -86,7 +86,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.__ui.buttonBoxNetwork.button(QtWidgets.QDialogButtonBox.Cancel).clicked.connect(self.restoreBrokerSettings)
         self.__ui.buttonRefreshPorts.clicked.connect(self.refreshSerialPorts)
         #self.__ui.selectPort.activated.connect(self.selectSerialPort)
-        self.__ui.selectAP.valueChanged.connect(self.selectDisplayedAP)
+        #self.__ui.selectAP.valueChanged.connect(self.selectDisplayedAP)
         self.__ui.wifiSSID.textEdited.connect(self.updateAP)
         self.__ui.wifiPassword.textEdited.connect(self.updateAP)
         self.__ui.buttonBoxDevice.button(QtWidgets.QDialogButtonBox.Save).clicked.connect(self.saveEncoderConfiguration)
@@ -94,14 +94,16 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.__ui.buttonBoxDevice.button(QtWidgets.QDialog.Save).clicked.connect(self.__wsc.encoderConfig.)
 
     def updateAP(self):
-        index = self.__ui.selectAP.value() - 1
+        #index = self.__ui.selectAP.value() - 1
+        index = 0
         self.__AccessPoints[index][0] = self.__ui.wifiSSID.text()
         self.__AccessPoints[index][1] = self.__ui.wifiPassword.text()
 
     def selectDisplayedAP(self): 
-        print(self.__ui.selectAP.value()-1)
+        #print(self.__ui.selectAP.value()-1)
 
-        index = self.__ui.selectAP.value() - 1
+        #index = self.__ui.selectAP.value() - 1
+        index = 0
         ssid = self.__AccessPoints[index][0]
         password = self.__AccessPoints[index][1]
         self.__ui.wifiSSID.setText(ssid)
@@ -143,7 +145,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.__ui.statusMessageWidget.setText(msg)
 
     def setStatusBarUpdate(self, msg):
-        self.__ui.statusbar.showMessage(msg)
+        self.__ui.statusbar.showMessage(msg, 1000)
 
     def saveSettings(self):
         # MainWindow Settings
